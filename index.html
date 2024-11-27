@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+    />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <style>
+         #Map {
+         height: 600px; 
+        }
+         </style>
+    <title>Sạt Lở Đất</title>
+</head>
+<body>
+    <style>
+        #latitude1, #longitude1 {
+          display: none;
+        }
+    </style>
+    <div id="Map">
+        <script>
+            const map = L.map('Map').setView([0,0], 10);
+
+            const attribution =
+                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+            const tileURL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+            const tiles = L.tileLayer(tileURL, { attribution });
+            tiles.addTo(map);
+
+            async function getid() {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    console.log(position.coords);
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                document.getElementById("latitude").textContent = lat;
+                document.getElementById("longitude").textContent = lon;
+                const marker = L.marker([ lat,lon ]).addTo(map);
+                marker.setLatLng([lat,lon]);
+                const weatherData = await getweather(lat, lon);
+                const humid = ((weatherData.json.current.humidity)*0.45);
+                const slope = (weatherData.slope).toFixed(2);
+                const rainfall = weatherData.json.current.precip_mm;
+                const wind = Math.round(weatherData.json.current.wind_kph);
+                const soil = weatherData.soiltype.wrb_class_name;
+                const city = (weatherData.json.location.name).toLowerCase();
+                const population = await getHumanData(city);
+                const time = weatherData.json.location.localtime;
+                const a = getslopeFactor(slope);
+                const b = getrainFactor(rainfall);
+                const c = getwindFactor(wind);
+                const d = getsoilFactor(soil);
+                const g = getsoilmoistureFactor(humid);
+                const hazard = calculatehazard(a,b,c,d,g);
+                const weatherContent = `
+                    
+                    <b>Thời tiết:</b> ${weatherData.json.current.condition.text}<br>
+                    <b>Nhiệt độ:</b> ${Math.round(weatherData.json.current.temp_c)}°C<br>
+                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
+                    <b>Tốc độ gió:</b> `+ wind + `km/h<br>
+                    <b>độ dốc:</b> `+ slope + `°<br>
+                    <b>loại đất:</b> `+ soil + `<br>
+                    <b>lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>mật độ dân số:</b> `+ population + ` người<br>
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
+                    <b>Thời Gian:</b> `+time+`<br>`;
+                if (hazard >= 80) {
+                    marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
+                }
+                if (hazard >=60 && hazard <80) {
+                    marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
+                } else {
+                    marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
+                }
+                if (console.error()) {
+                    marker.bindPopup(`lỗi khi lấy thông tin`).openPopup();
+                };
+                map.setView([lat,lon],13)
+                })};
+                
+            if ("geolocation" in navigator) {
+                console.log('geolocaton available')
+                getid();
+            } else {
+                console.log('geolocation not available')
+                }
+            const circle = L.circle([16.480854,107.6204], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 1500
+                }).addTo(map);
+            const marker1 = L.marker();
+            const circle1 = L.circle([0,0], {
+                color: 'gray',
+                fillColor: 'gray',
+                fillOpacity: 0.5,
+                radius: 200
+            });
+
+            async function onMapClick(e) {
+                if (marker1) {
+                    map.removeLayer(marker1);
+                    map.removeLayer(circle1);
+                }
+                const lat = e.latlng.lat;
+                const lon = e.latlng.lng;
+                marker1.setLatLng([lat,lon]);
+                marker1.addTo(map);
+                circle1.setLatLng([lat,lon])
+                circle1.addTo(map);
+                const weatherData = await getweather(lat, lon);
+                const humid = ((weatherData.json.current.humidity)*0.45);
+                const slope = (weatherData.slope).toFixed(2);
+                const rainfall = weatherData.json.current.precip_mm;
+                const wind = Math.round(weatherData.json.current.wind_kph);
+                const soil = weatherData.soiltype.wrb_class_name;
+                const city = (weatherData.json.location.name).toLowerCase();
+                const population = await getHumanData(city);
+                const time = weatherData.json.location.localtime;
+                const a = getslopeFactor(slope);
+                const b = getrainFactor(rainfall);
+                const c = getwindFactor(wind);
+                const d = getsoilFactor(soil);
+                const g = getsoilmoistureFactor(humid);
+                const hazard = calculatehazard(a,b,c,d,g);
+                const weatherContent = `
+                    <b>Thời tiết:</b> ${weatherData.json.current.condition.text}<br>
+                    <b>Nhiệt độ:</b> ${Math.round(weatherData.json.current.temp_c)}°C<br>
+                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
+                    <b>Tốc độ gió:</b> `+ wind + `km/h<br>
+                    <b>độ dốc:</b> `+ slope + `°<br>
+                    <b>loại đất:</b> `+ soil + `<br>
+                    <b>lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>mật độ dân số:</b> `+ population + ` người<br>
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
+                    <b>Thời Gian:</b> `+time+`<br>`;
+                if (hazard >= 80) {
+                    marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
+                }
+                if (hazard >=60 && hazard <80) {
+                    marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
+                } else {
+                    marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
+                }
+                if (console.error()) {
+                    marker1.bindPopup(`lỗi khi lấy thông tin`).openPopup();
+                };
+                
+            }
+            try{map.on('click', onMapClick)}
+            catch (error) {
+                console.error('Lỗi khi lấy dữ liệu:', error.message)
+            };
+        </script>
+            <script src="script.js"></script>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </div>
+    <p>
+        latitude: <span id="latitude"></span><br />
+        longitude: <span id="longitude"></span>
+    </p>
+</body>
+</html>

@@ -30,9 +30,9 @@
         <script>
             const map = L.map('Map').setView([0,0], 10);
             const tiles = L.tileLayer('http://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
-                maxZoom: 20,
-                subdomains:['mt0','mt1','mt2','mt3']
-            });
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
             tiles.addTo(map);
 
             async function getid() {

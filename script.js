@@ -1,12 +1,5 @@
 async function getweather(lat,lon) {
-    const api_url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${lat}%2C${lon}`;
-    const options = {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-key': 'fc448170f3msh4ba727c1101833dp138cdcjsn578abbcf4f7a',
-            'x-rapidapi-host': 'weatherapi-com.p.rapidapi.com'
-        }
-    };
+    const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
     const api_url1 =  `https://api.open-elevation.com/api/v1/lookup?locations=${lat-0.0004},${lon-0.0004}|${lat + 0.0004},${lon + 0.0004}`;
     const api_url2 =`https://rest.isric.org/soilgrids/v2.0/classification/query?lon=${lon}&lat=${lat}&number_classes=12`
     const response = await fetch(api_url, options);

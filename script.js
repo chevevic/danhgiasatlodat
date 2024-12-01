@@ -1,4 +1,5 @@
 async function getweather(lat,lon) {
+    try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
     const api_url1 =  `https://api.open-elevation.com/api/v1/lookup?locations=${lat-0.0004},${lon-0.0004}|${lat + 0.0004},${lon + 0.0004}`;
     const api_url2 =`https://rest.isric.org/soilgrids/v2.0/classification/query?lon=${lon}&lat=${lat}&number_classes=12`
@@ -24,6 +25,10 @@ async function getweather(lat,lon) {
         json,
         slope,
         soiltype
+    };
+    } catch (error) {
+        console.error("An error occurred:", error);
+        return 0;
     }
 }
 var script = document.createElement('script');

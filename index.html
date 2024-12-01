@@ -64,12 +64,12 @@
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
                     <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>độ dốc:</b> `+ slope + `°<br>
-                    <b>loại đất:</b> `+ soil + `<br>
-                    <b>lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>mật độ dân số:</b> `+ population + ` người<br>
+                    <b>Độ dốc:</b> `+ slope + `°<br>
+                    <b>Loại đất:</b> `+ soil + `<br>
+                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>thời điểm: ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
                 if (hazard >= 70) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -139,12 +139,12 @@
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
                     <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>độ dốc:</b> `+ slope + `°<br>
-                    <b>loại đất:</b> `+ soil + `<br>
-                    <b>lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>mật độ dân số:</b> `+ population + ` người<br>
+                    <b>Độ dốc:</b> `+ slope + `°<br>
+                    <b>Loại đất:</b> `+ soil + `<br>
+                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>thời điểm: ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -197,12 +197,12 @@
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
                     <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>độ dốc:</b> `+ slope + `°<br>
-                    <b>loại đất:</b> `+ soil + `<br>
-                    <b>lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>mật độ dân số:</b> `+ population + ` người<br>
+                    <b>Độ dốc:</b> `+ slope + `°<br>
+                    <b>Loại đất:</b> `+ soil + `<br>
+                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm: ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {

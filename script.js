@@ -16,15 +16,14 @@ async function getweather(lat,lon) {
     const response2 = await fetch(api_url2);
     const soiltype = await response2.json();
     console.log(soiltype);
-    fetch(`https://overpass-api.de/api/interpreter?data=[out:json];(way(around:750,${lat},${lon})["landuse"];node(around:1000,${lat},${lon})["landuse"];);out%20body;%3E;out%20skel%20qt;`)
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-  })
+    const response3 = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];(way(around:1000,${lat},${lon})["landuse"];node(around:1000,${lat},${lon})["landuse"];);out%20body;%3E;out%20skel%20qt;`);
+    landuse = await response3.json();
+    console.log(landuse);
     return {
         json,
         slope,
-        soiltype
+        soiltype,
+        landuse
     };
     } catch (error) {
         console.error("An error occurred:", error);

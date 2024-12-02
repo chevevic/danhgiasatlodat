@@ -1,3 +1,8 @@
+body {
+    color : black;
+    background-color: rgb(255, 255, 255);
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 .highlight {
     background-color: rgb(228, 224, 0);
     color: rgb(4, 125, 196);
@@ -17,7 +22,7 @@
     font-size: 14px;
 }
 .might {
-    color: yellow;
+    color: orange;
     font-weight: bold;
     font-size: 14;
 }

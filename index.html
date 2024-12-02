@@ -53,8 +53,8 @@
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
+                let landuse = ((weatherData.landuse.elements[4])) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
                 const population = await getHumanData(city);
-                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -107,6 +107,7 @@
             });
 
             async function onMapClick(e) {
+                document.getElementById("ways-container").innerHTML = '';
                 if (marker1) {
                     map.removeLayer(marker1);
                     map.removeLayer(circle1);
@@ -119,7 +120,7 @@
                 circle1.addTo(map);
                 const weatherData = await getweather(lat, lon);
                 if (weatherData === 0) {
-                    marker.bindPopup(`lỗi khi lấy thông tin`).openPopup();
+                    marker1.bindPopup(`lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
                 const timestamp = weatherData.json.dt;
@@ -131,7 +132,7 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
-                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
+                let landuse = ((weatherData.landuse.elements[4])) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -166,6 +167,7 @@
                 console.error('Lỗi khi lấy dữ liệu:', error.message)
             };
             async function getweatherbylatlon() {
+                document.getElementById("ways-container").innerHTML = '';
                 if (marker1) {
                     map.removeLayer(marker1);
                     map.removeLayer(circle1);
@@ -191,7 +193,7 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
-                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
+                let landuse = (weatherData.landuse.elements[4]) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -228,8 +230,9 @@
         Vĩ độ : <span id ='longitude'></span></br>
         <b>Tìm Vị Trí</b></br>
         latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
-        longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ"></br>
+        longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
         <button onclick="getweatherbylatlon()"><b>Tìm</b></button>
     </p>
+    <div id="ways-container"></div>
 </body>
 </html>

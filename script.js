@@ -16,8 +16,80 @@ async function getweather(lat,lon) {
     const response2 = await fetch(api_url2);
     const soiltype = await response2.json();
     console.log(soiltype);
-    const response3 = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];(way(around:1000,${lat},${lon})["landuse"];node(around:1000,${lat},${lon})["landuse"];);out%20body;%3E;out%20skel%20qt;`);
+    const response3 = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];
+(
+  way["landuse"](around:500, ${lat}, ${lon});
+  relation["landuse"](around:500, ${lat}, ${lon});
+  node["landuse"](around:5000, ${lat}, ${lon});
+
+  way["natural"](around:500, ${lat}, ${lon});
+  relation["natural"](around:500, ${lat}, ${lon});
+  node["natural"](around:500, ${lat}, ${lon});
+
+  way["boundary"](around:500, ${lat}, ${lon});
+  relation["boundary"](around:500, ${lat}, ${lon});
+  node["boundary"](around:500, ${lat}, ${lon});
+
+  way["waterway"](around:500, ${lat}, ${lon});
+  relation["waterway"](around:500, ${lat}, ${lon});
+  node["waterway"](around:500, ${lat}, ${lon});
+
+  way["highway"](around:500, ${lat}, ${lon});
+  relation["highway"](around:500, ${lat}, ${lon});
+  node["highway"](around:500, ${lat}, ${lon});
+
+  way["building"](around:500, ${lat}, ${lon});
+  relation["building"](around:500, ${lat}, ${lon});
+  node["building"](around:500, ${lat}, ${lon});
+
+  way["place"](around:500, ${lat}, ${lon});
+  relation["place"](around:500, ${lat}, ${lon});
+  node["place"](around:500, ${lat}, ${lon});
+
+  way["power"](around:500, ${lat}, ${lon});
+  relation["power"](around:500, ${lat}, ${lon});
+  node["power"](around:500, ${lat}, ${lon});
+);
+out body;`);
+
     landuse = await response3.json();
+    const ways = landuse.elements.filter(item => item.type === 'way');
+    const nodes = landuse.elements.filter(item => item.type === 'node');
+    const wayWithMinId = ways.reduce((minWay, currentWay) => {
+        return currentWay.id < minWay.id ? currentWay : minWay;
+    }, ways[0]);
+    
+    const nodeWithMinId = nodes.reduce((minNode, currentNode) => {
+        return currentNode.id < minNode.id ? currentNode : minNode;
+    }, nodes[0]);
+    
+    const container = document.getElementById("ways-container");
+    container.innerHTML = '';
+    const tagsContainer = document.createElement("div");
+    if (wayWithMinId && wayWithMinId.tags) {
+        for (const [key, value] of Object.entries(wayWithMinId.tags)) {
+            const tagElement = document.createElement("p");
+            tagElement.innerHTML = `<strong>${key}:</strong> ${value}`;
+            tagsContainer.appendChild(tagElement);
+        }
+    } else {
+        const noDataElement = document.createElement("p");
+        noDataElement.innerHTML = '0';
+        tagsContainer.appendChild(noDataElement);
+    }
+    
+    if (nodeWithMinId && nodeWithMinId.tags) {
+        for (const [key, value] of Object.entries(nodeWithMinId.tags)) {
+            const tagElement = document.createElement("p");
+            tagElement.innerHTML = `<strong>${key}:</strong> ${value}`;
+            tagsContainer.appendChild(tagElement);
+        }
+    } else {
+        const noDataElement = document.createElement("p");
+        noDataElement.innerHTML = '0';
+        tagsContainer.appendChild(noDataElement);
+    }
+    container.appendChild(tagsContainer);
     console.log(landuse);
     return {
         json,
@@ -126,5 +198,7 @@ function getsoilmoistureFactor(humid) {
     if (humid >= 10 && humid < 15) return 0.5;
     if (humid >=15 && humid < 30) return 1.0;
     if (humid >= 30 && humid <= 40) return 1.5;
+    return 2.0;
+}
     return 2.0;
 }

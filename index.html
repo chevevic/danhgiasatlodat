@@ -19,6 +19,7 @@
         }
          </style>
     <title>Sạt Lở Đất</title>
+    <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
     <div id="Map">
@@ -53,6 +54,7 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
+                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -69,7 +71,8 @@
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b>Sử dụng đất:</b> ${landuse}`;
                 if (hazard >= 70) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -128,6 +131,7 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
+                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -144,7 +148,8 @@
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b>Sử dụng đất:</b> ${landuse}`;
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -186,6 +191,7 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
+                let landuse = (weatherData.landuse.elements[0]) ? (weatherData.landuse.elements[0].tags.landuse) : 'mountain';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -202,7 +208,8 @@
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b>Sử dụng đất:</b> ${landuse}`;
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {

@@ -27,3 +27,7 @@ body {
     font-weight: bold;
     font-size: 14;
 }
+#ways-container p {
+    margin: 0;
+    line-height: 1.2;
+}

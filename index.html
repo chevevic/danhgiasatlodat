@@ -220,6 +220,68 @@
                     marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
                 }
             }
+            function initializeGAPI() {
+            gapi.load('client:auth2', function() {
+                gapi.auth2.init({
+                    client_id: '43711347087-sm9lne8u3k8jc7p3g4vjm59qu3e27gts.apps.googleusercontent.com.apps.googleusercontent.com'
+                }).then(function() {
+                    authenticateAndInitialize();
+                });
+            });
+        }
+
+        // Xác thực và khởi tạo Earth Engine
+        function authenticateAndInitialize() {
+            gapi.auth2.getAuthInstance().signIn().then(function() {
+                console.log('Authenticated successfully');
+                initializeGEE();
+            });
+        }
+
+        // Khởi tạo Google Earth Engine API
+        function initializeGEE() {
+            if (typeof ee === 'undefined') {
+                alert('Google Earth Engine is not available');
+                return;
+            }
+
+            ee.data.authenticateViaOauth(function() {
+                ee.initialize(function() {
+                    console.log('Google Earth Engine initialized');
+                    fetchNDVI();
+                });
+            });
+        }
+
+        // Lấy NDVI từ dữ liệu Sentinel-2
+        function fetchNDVI() {
+            var lat = 21.0285;  // Ví dụ vĩ độ
+            var lon = 105.8542; // Ví dụ kinh độ
+            var point = ee.Geometry.Point([lon, lat]);
+
+            var collection = ee.ImageCollection('COPERNICUS/S2')
+                .filterBounds(point)
+                .filterDate('2023-01-01', '2023-12-31')
+                .filter(ee.Filter.lt('system:cloud_coverage', 20));
+
+            var image = collection.first();
+            var ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI');
+
+            var ndvi_value = ndvi.sample({
+                region: point,
+                scale: 30,  // Độ phân giải 30m
+                numPixels: 1
+            });
+
+            // Hiển thị giá trị NDVI
+            ndvi_value.getInfo(function(info) {
+                document.getElementById('output').innerText = 'NDVI Value: ' + info.features[0].properties.NDVI;
+                console.log('NDVI Value:', info.features[0].properties.NDVI);
+            });
+        }
+
+        // Khởi động khi trang tải xong
+        window.onload = initializeGAPI;
         </script>
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

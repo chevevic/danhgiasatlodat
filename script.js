@@ -200,5 +200,3 @@ function getsoilmoistureFactor(humid) {
     if (humid >= 30 && humid <= 40) return 1.5;
     return 2.0;
 }
-    return 2.0;
-}

@@ -22,15 +22,7 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-    <p>
-        <b>Vị Trí Hiện Tại</b></br>
-        Kinh độ : <span id ='latitude'></span></br>
-        Vĩ độ : <span id ='longitude'></span></br>
-        <b>Tìm Vị Trí</b></br>
-        latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
-        longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
-        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button></p><br>
-    </p>
+
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
@@ -173,6 +165,15 @@
         </script>
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <p>
+        <b>Vị Trí Hiện Tại</b></br>
+        Kinh độ : <span id ='latitude'></span></br>
+        Vĩ độ : <span id ='longitude'></span></br>
+        <b>Tìm Vị Trí</b></br>
+        latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
+        longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
+        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button></p><br>
+    </p>
     </div>
     <h2>Thông Tin Về Địa Điểm:</h2>
     <div id="ways-container"></div>

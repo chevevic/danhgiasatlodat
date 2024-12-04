@@ -9,11 +9,11 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""
     />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
          #Map {
          height: 600px; 
@@ -23,27 +23,27 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-      <script>
-    window.onload = function() {
-      // Khởi tạo Google Identity Services
-      google.accounts.id.initialize({
-        client_id: '43711347087-sm9lne8u3k8jc7p3g4vjm59qu3e27gts.apps.googleusercontent.com',
-        callback: handleCredentialResponse
-      });
-
-      // Kiểm tra và thực hiện đăng nhập tự động nếu người dùng đã đăng nhập trước đó
-      google.accounts.id.prompt();  // Tự động yêu cầu đăng nhập nếu chưa có thông tin xác thực
-
-      // Hiển thị thông báo trong console khi Google được tải thành công
-      console.log("Google đã được tải thành công!");
-    };
-
-    // Hàm xử lý phản hồi khi người dùng đăng nhập thành công
-    function handleCredentialResponse(response) {
-      console.log("ID Token: " + response.credential);
-      // Ở đây bạn có thể xử lý ID token và gửi nó lên server để xác thực người dùng
-    }
-      </script>
+    <script>
+        window.onload = function() {
+          // Khởi tạo Google Identity Services
+          google.accounts.id.initialize({
+            client_id: '43711347087-sm9lne8u3k8jc7p3g4vjm59qu3e27gts.apps.googleusercontent.com',
+            callback: handleCredentialResponse
+          });
+    
+          // Kiểm tra và thực hiện đăng nhập tự động nếu người dùng đã đăng nhập trước đó
+          google.accounts.id.prompt();  // Tự động yêu cầu đăng nhập nếu chưa có thông tin xác thực
+    
+          // Hiển thị thông báo trong console khi Google được tải thành công
+          console.log("Google đã được tải thành công!");
+        };
+    
+        // Hàm xử lý phản hồi khi người dùng đăng nhập thành công
+        function handleCredentialResponse(response) {
+          console.log("ID Token: " + response.credential);
+          // Ở đây bạn có thể xử lý ID token và gửi nó lên server để xác thực người dùng
+        }
+          </script>
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
@@ -64,7 +64,7 @@
                 marker.setLatLng([lat,lon]);
                 const weatherData = await getweather(lat, lon);
                 if (weatherData === 0) {
-                    marker.bindPopup(`lỗi khi lấy thông tin`).openPopup();
+                    marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
                 const timestamp = weatherData.json.dt;
@@ -75,7 +75,6 @@
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
-                let landuse = ((weatherData.landuse.elements[4])) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
@@ -93,8 +92,7 @@
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b>Sử dụng đất:</b> ${landuse}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
                 if (hazard >= 70) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -102,9 +100,6 @@
                 } else {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
                 }
-                if (console.error()) {
-                    marker.bindPopup(`lỗi khi lấy thông tin`).openPopup();
-                };
                 map.setView([lat,lon],13)
                 })};
                 
@@ -136,66 +131,14 @@
                 }
                 const lat = e.latlng.lat;
                 const lon = e.latlng.lng;
-                marker1.setLatLng([lat,lon]);
-                marker1.addTo(map);
-                circle1.setLatLng([lat,lon])
-                circle1.addTo(map);
-                const weatherData = await getweather(lat, lon);
-                if (weatherData === 0) {
-                    marker1.bindPopup(`lỗi khi lấy thông tin`).openPopup();
-                    return;
-                }
-                const timestamp = weatherData.json.dt;
-                const date = new Date(timestamp * 1000);
-                const humid = ((weatherData.json.main.humidity)*0.45);
-                const slope = (weatherData.slope).toFixed(2);
-                let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const wind = Math.round(weatherData.json.wind.speed *3.6);
-                const soil = weatherData.soiltype.wrb_class_name;
-                const city = (weatherData.json.name).toLowerCase();
-                const population = await getHumanData(city);
-                let landuse = ((weatherData.landuse.elements[4])) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
-                const a = getslopeFactor(slope);
-                const b = getrainFactor(rainfall);
-                const c = getwindFactor(wind);
-                const d = getsoilFactor(soil);
-                const g = getsoilmoistureFactor(humid);
-                const hazard = calculatehazard(a,b,c,d,g);
-                const weatherContent = `
-                    <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
-                    <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
-                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
-                    <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>Độ dốc:</b> `+ slope + `°<br>
-                    <b>Loại đất:</b> `+ soil + `<br>
-                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b>Sử dụng đất:</b> ${landuse}`;
-                if (hazard >= 70) {
-                    marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
-                } else if (hazard >=55 && hazard <70) {
-                    marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
-                } else {
-                    marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
-                }
-                if (console.error()) {
-                    marker1.bindPopup(`lỗi khi lấy thông tin`).openPopup();
-                };
+                getweatherbylatlon(lat,lon);
             }
             try{map.on('click', onMapClick)}
             catch (error) {
                 console.error('Lỗi khi lấy dữ liệu:', error.message)
             };
-            async function getweatherbylatlon() {
+            async function getweatherbylatlon(lat,lon) {
                 document.getElementById("ways-container").innerHTML = '';
-                if (marker1) {
-                    map.removeLayer(marker1);
-                    map.removeLayer(circle1);
-                }
-                const lat = Number(document.getElementById("latitude1").value);
-                const lon = Number(document.getElementById("longitude1").value);
                 map.setView([lat,lon],13)
                 marker1.setLatLng([lat,lon]);
                 marker1.addTo(map);
@@ -203,7 +146,7 @@
                 circle1.addTo(map);
                 const weatherData = await getweather(lat, lon);
                 if (weatherData === 0) {
-                    marker.bindPopup(`lỗi khi lấy thông tin`).openPopup();
+                    marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
                 const timestamp = weatherData.json.dt;
@@ -215,7 +158,6 @@
                 const soil = weatherData.soiltype.wrb_class_name;
                 const city = (weatherData.json.name).toLowerCase();
                 const population = await getHumanData(city);
-                let landuse = (weatherData.landuse.elements[4]) ? (weatherData.landuse.elements[4].tags.highway) : 'Tự Nhiên';
                 const a = getslopeFactor(slope);
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
@@ -232,8 +174,7 @@
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b>Sử dụng đất:</b> ${landuse}`;
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -253,9 +194,12 @@
         <b>Tìm Vị Trí</b></br>
         latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
         longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
-        <button onclick="getweatherbylatlon()"><b>Tìm</b></button>
+        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button></p><br>
+        <small>-hoặc-</small>
+        Thành Phố:
     </p>
     <h2>Thông Tin Về Địa Điểm:</h2>
     <div id="ways-container"></div>
 </body>
 </html>
+

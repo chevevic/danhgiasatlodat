@@ -9,7 +9,6 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""
     />
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -23,27 +22,6 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-    <script>
-        window.onload = function() {
-          // Khởi tạo Google Identity Services
-          google.accounts.id.initialize({
-            client_id: '43711347087-sm9lne8u3k8jc7p3g4vjm59qu3e27gts.apps.googleusercontent.com',
-            callback: handleCredentialResponse
-          });
-    
-          // Kiểm tra và thực hiện đăng nhập tự động nếu người dùng đã đăng nhập trước đó
-          google.accounts.id.prompt();  // Tự động yêu cầu đăng nhập nếu chưa có thông tin xác thực
-    
-          // Hiển thị thông báo trong console khi Google được tải thành công
-          console.log("Google đã được tải thành công!");
-        };
-    
-        // Hàm xử lý phản hồi khi người dùng đăng nhập thành công
-        function handleCredentialResponse(response) {
-          console.log("ID Token: " + response.credential);
-          // Ở đây bạn có thể xử lý ID token và gửi nó lên server để xác thực người dùng
-        }
-          </script>
     <p>
         <b>Vị Trí Hiện Tại</b></br>
         Kinh độ : <span id ='latitude'></span></br>

@@ -22,7 +22,11 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-
+<p>
+    <b>Vị Trí Hiện Tại</b></br>
+    Kinh độ : <span id ="latitude"></span></br>
+    Vĩ độ : <span id ="longitude"></span></br>
+</p>
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
@@ -167,9 +171,6 @@
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </div>
     <p>
-        <b>Vị Trí Hiện Tại</b></br>
-        Kinh độ : <span id ="latitude"></span></br>
-        Vĩ độ : <span id ="longitude"></span></br>
         <b>Tìm Vị Trí</b></br>
         latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
         longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">

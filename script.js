@@ -8,6 +8,7 @@ async function getweather(lat,lon) {
     console.log(json);
     const response1 = await fetch(api_url1);
     const elevationData = await response1.json();
+    console.log(elevationData);
     const elevation1 = elevationData.results[0].elevation;
     const elevation2 = elevationData.results[1].elevation;
     const distance = getDistance(lat-0.0004, lon-0.0004, lat + 0.0004, lon + 0.0004); 
@@ -20,19 +21,11 @@ async function getweather(lat,lon) {
 (
   way["landuse"](around:500, ${lat}, ${lon});
   relation["landuse"](around:500, ${lat}, ${lon});
-  node["landuse"](around:5000, ${lat}, ${lon});
+  node["landuse"](around:500, ${lat}, ${lon});
 
   way["natural"](around:500, ${lat}, ${lon});
   relation["natural"](around:500, ${lat}, ${lon});
   node["natural"](around:500, ${lat}, ${lon});
-
-  way["boundary"](around:500, ${lat}, ${lon});
-  relation["boundary"](around:500, ${lat}, ${lon});
-  node["boundary"](around:500, ${lat}, ${lon});
-
-  way["waterway"](around:500, ${lat}, ${lon});
-  relation["waterway"](around:500, ${lat}, ${lon});
-  node["waterway"](around:500, ${lat}, ${lon});
 
   way["highway"](around:500, ${lat}, ${lon});
   relation["highway"](around:500, ${lat}, ${lon});
@@ -41,10 +34,6 @@ async function getweather(lat,lon) {
   way["building"](around:500, ${lat}, ${lon});
   relation["building"](around:500, ${lat}, ${lon});
   node["building"](around:500, ${lat}, ${lon});
-
-  way["place"](around:500, ${lat}, ${lon});
-  relation["place"](around:500, ${lat}, ${lon});
-  node["place"](around:500, ${lat}, ${lon});
 
   way["power"](around:500, ${lat}, ${lon});
   relation["power"](around:500, ${lat}, ${lon});
@@ -58,7 +47,6 @@ out body;`);
     const wayWithMinId = ways.reduce((minWay, currentWay) => {
         return currentWay.id < minWay.id ? currentWay : minWay;
     }, ways[0]);
-    
     const nodeWithMinId = nodes.reduce((minNode, currentNode) => {
         return currentNode.id < minNode.id ? currentNode : minNode;
     }, nodes[0]);
@@ -90,12 +78,44 @@ out body;`);
         tagsContainer.appendChild(noDataElement);
     }
     container.appendChild(tagsContainer);
-    console.log(landuse);
+    console.log(landuse)
+    const radius = 500;
+    const Density = calculateDensity(landuse,lat,lon,radius);
+    console.log(Density)
+    const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson?latitude=${lat}&longitude=${lon}&maxradius=1000`;
+    const response4 = await fetch(url);
+    const seismicData = await response4.json();
+    console.log(seismicData);
+    let totalImpact = 0;
+    let count = 0;
+    if (seismicData.features && Array.isArray(seismicData.features)) {
+        seismicData.features.forEach(earthquake => {
+            const magnitude = earthquake.properties.mag;
+            const earthquakeLat = earthquake.geometry.coordinates[1];
+            const earthquakeLon = earthquake.geometry.coordinates[0];
+            const distance1 = getDistance(lat, lon, earthquakeLat, earthquakeLon);
+            const impact = magnitude / (1 + distance1);
+    
+            totalImpact += impact;
+            count++;
+        });
+    } else {
+        console.error("Dữ liệu động đất không hợp lệ hoặc không có dữ liệu features.");
+    }
+    const Impact = count > 0 ? totalImpact : 0;
+    const moistapi = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=soil_moisture_9_to_27cm`
+    const response5 = await fetch(moistapi);
+    const moistData = await response5.json();
+    const moist = moistData.hourly.soil_moisture_9_to_27cm[0];
+    console.log(moistData);
     return {
         json,
         slope,
         soiltype,
-        landuse
+        landuse,
+        Density,
+        Impact,
+        moist
     };
     } catch (error) {
         console.error("An error occurred:", error);
@@ -146,7 +166,6 @@ function getDistance(lat1, lon1, lat2, lon2) {
     const phi2 = lat2 * Math.PI / 180;
     const deltaPhi = (lat2 - lat1) * Math.PI / 180;
     const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-
     const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
               Math.cos(phi1) * Math.cos(phi2) *
               Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
@@ -199,4 +218,35 @@ function getsoilmoistureFactor(humid) {
     if (humid >=15 && humid < 30) return 1.0;
     if (humid >= 30 && humid <= 40) return 1.5;
     return 2.0;
+}
+function convertDateFormat(dateString) {
+    const [day, month, year] = dateString.split('/');
+    const formattedDate = `${year}-${month-1}-${day}`;
+    return formattedDate;
+}
+function calculateDensity(data, lat, lon, radius) {
+    let buildingCount = 0;
+    let highwayCount = 0;
+    let powerCount = 0;
+    let total = 0;
+
+    // Tính mật độ của từng loại đối tượng trong phạm vi radius
+    data.elements.forEach(element => {
+        const elementLat = element.lat;
+        const elementLon = element.lon;
+        distance = getDistance(lat,lon,elementLat,elementLon);
+        if (distance < radius) {
+            if (element.tags && element.tags.building) buildingCount++;
+            if (element.tags && element.tags.highway) highwayCount++;
+            if (element.tags && element.tags.power) powerCount++;
+    }})
+    // Tính mật độ các loại đối tượng
+    const buildingDensity = buildingCount / (Math.PI * radius * radius);
+    const highwayDensity = highwayCount / (Math.PI * radius * radius);
+    const powerDensity = powerCount / (Math.PI * radius * radius);
+
+    // Tính tổng mật độ
+    total = (buildingDensity + highwayDensity + powerDensity)*1000000;
+
+    return total;
 }

@@ -81,7 +81,6 @@ out body;`);
     console.log(landuse)
     const radius = 500;
     const Density = calculateDensity(landuse,lat,lon,radius);
-    console.log(Density)
     const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson?latitude=${lat}&longitude=${lon}&maxradius=1000`;
     const response4 = await fetch(url);
     const seismicData = await response4.json();
@@ -107,7 +106,6 @@ out body;`);
     const response5 = await fetch(moistapi);
     const moistData = await response5.json();
     const moist = moistData.hourly.soil_moisture_9_to_27cm[0];
-    console.log(moistData);
     return {
         json,
         slope,
@@ -133,26 +131,45 @@ script.onerror = function() {
 };
 document.head.appendChild(script);
 function getHumanData(city) {
-    return new Promise((resolve, reject) => {
-    var name = city
-    $.ajax({
-        method: 'GET',
-        url: 'https://api.api-ninjas.com/v1/city?name=' + name,
-        headers: { 'X-Api-Key': 'jdXat9Ki5HubXgmipMFdAA==WftEvsVIXvufKXUf'},
-        contentType: 'application/json',
-        success: function(result) {
-            if (result && result[0] && result[0].population) {
-                console.log(result);
-                resolve(result[0].population);
-            } else {
-                resolve(156474);
-            }
-        },
-        error: function ajaxError(jqXHR) {
-            reject('Error: ', jqXHR.responseText);
-        }
-    });
-})}
+    try {
+     return new Promise((resolve, reject) => {
+         var name = city;
+         const apiKeys = ['CvVjkVRAMC0qBCc3X00OPA==jL1dpztC8JYWK4Fm','bx1RyMZI6jijYhcOkN09oA==fWblJEURLHBnuQMP','1T+PdTDqdcBAN2KBPy3rUA==Azgxa1tszECyQmdB','jdXat9Ki5HubXgmipMFdAA==WftEvsVIXvufKXUf',]; // Thay 'YOUR_NEW_API_KEY' bằng API key mới của bạn
+         let currentApiKeyIndex = 0;
+ 
+         function makeRequest() {
+             $.ajax({
+                 method: 'GET',
+                 url: 'https://api.api-ninjas.com/v1/city?name=' + name,
+                 headers: { 'X-Api-Key': apiKeys[currentApiKeyIndex] },
+                 contentType: 'application/json',
+                 success: function(result) {
+                     if (result && result[0] && result[0].population) {
+                         console.log(result);
+                         resolve(result[0].population);
+                     } else {
+                         resolve(156474);
+                     }
+                 },
+                 error: function ajaxError(jqXHR) {
+                     if (jqXHR.status === 400 && currentApiKeyIndex === 0) {
+                         console.log('API key đầu tiên không hợp lệ, thử với key khác...');
+                         currentApiKeyIndex++;
+                         makeRequest();
+                     } else {
+                         reject('Error: ' + jqXHR.responseText);
+                     }
+                 }
+             });
+         }
+ 
+         makeRequest();
+     });
+    } catch (error) {
+         console.error('Có lỗi trong quá trình thực thi:', error);
+         return;
+    }
+ }
 function calculateLandslideRisk(hazard, exposure, vulnerability) {
     if (hazard < 0 || exposure < 0 || vulnerability < 0) {
         return "Giá trị không hợp lệ. Tất cả các tham số phải lớn hơn hoặc bằng 0.";
@@ -229,8 +246,6 @@ function calculateDensity(data, lat, lon, radius) {
     let highwayCount = 0;
     let powerCount = 0;
     let total = 0;
-
-    // Tính mật độ của từng loại đối tượng trong phạm vi radius
     data.elements.forEach(element => {
         const elementLat = element.lat;
         const elementLon = element.lon;
@@ -240,13 +255,23 @@ function calculateDensity(data, lat, lon, radius) {
             if (element.tags && element.tags.highway) highwayCount++;
             if (element.tags && element.tags.power) powerCount++;
     }})
-    // Tính mật độ các loại đối tượng
     const buildingDensity = buildingCount / (Math.PI * radius * radius);
     const highwayDensity = highwayCount / (Math.PI * radius * radius);
     const powerDensity = powerCount / (Math.PI * radius * radius);
 
-    // Tính tổng mật độ
     total = (buildingDensity + highwayDensity + powerDensity)*1000000;
 
     return total;
+}
+async function getlatlonbycity(city) {
+    api = `https://nominatim.openstreetmap.org/search?q=${city}&format=json`;
+    const response = await fetch(api);
+    const data = await response.json();
+    console.log(data);
+    const lat = Number(data[0].lat);
+    const lon = Number(data[0].lon);
+    return {
+        lat,
+        lon
+    };
 }

@@ -174,20 +174,32 @@
                     marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
                 }
             }
+            async function getweatherbycity(ten) {
+                const data = await getlatlonbycity(ten);
+                const lat = data.lat;
+                const lon = data.lon;
+                getweatherbylatlon(lat,lon);
+            }
         </script>
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </div>
     <p>
-        <b>Vị Trí Hiện Tại</b></br>
-        Kinh độ : <span id ="latitude"></span></br>
-        Vĩ độ : <span id ="longitude"></span></br>
-        <b>Tìm Vị Trí</b></br>
-        latitude: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"></br>
-        longitude: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
-        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button></p><br>
+        <b>Vị Trí Hiện Tại</b><br>
+        Kinh độ : <span id ="latitude"></span><br>
+        Vĩ độ : <span id ="longitude"></span><br>
+        <b>Tìm Vị Trí</b><br>
+        Kinh độ: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"><br>
+        Vĩ độ: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
+        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button><br>
+        <small>-hoặc-</small><br>
+        <b>Tên Thành Phố:</b><br> <input type="text" id="cityname" placeholder="Hãy Điền Vào Tên Thành Phố">
+        <button onclick="getweatherbycity(String(document.getElementById('cityname').value))"><b>Tìm</b></button><br>
     </p>
     <h2>Thông Tin Về Địa Điểm:</h2>
+    <div id="ways-container"></div>
+</body>
+</html>
     <div id="ways-container"></div>
 </body>
 </html>

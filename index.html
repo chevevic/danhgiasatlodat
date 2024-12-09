@@ -26,12 +26,11 @@
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri',
-        maxZoom: 19
-    });
-
-    esriLayer.addTo(map);
+            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+    Tiles.addTo(map);
             async function getid() {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     console.log(position.coords);
@@ -61,8 +60,9 @@
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
                 const d = getsoilFactor(soil);
+                const e = getseismicFactor(seismic);
                 const g = getsoilmoistureFactor(humid);
-                const hazard = calculatehazard(a,b,c,d,g);
+                const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
@@ -71,7 +71,7 @@
                     <b>Độ dốc:</b> `+ slope + `°<br>
                     <b>Loại đất:</b> `+ soil + `<br>
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>Độ ảnh hưởng động đất</b> ` + seismic +` Mw/m<br>
+                    <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
@@ -151,8 +151,9 @@
                 const b = getrainFactor(rainfall);
                 const c = getwindFactor(wind);
                 const d = getsoilFactor(soil);
+                const e = getseismicFactor(seismic);
                 const g = getsoilmoistureFactor(humid);
-                const hazard = calculatehazard(a,b,c,d,g);
+                const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
@@ -161,7 +162,7 @@
                     <b>Độ dốc:</b> `+ slope + `°<br>
                     <b>Loại đất:</b> `+ soil + `<br>
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>Độ ảnh hưởng động đất</b> ` + seismic +` Mw/m<br>
+                    <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>

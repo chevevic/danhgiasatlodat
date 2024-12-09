@@ -30,7 +30,7 @@
     maxZoom: 20,
     subdomains:['mt0','mt1','mt2','mt3']
 });
-    Tiles.addTo(map);
+    tiles.addTo(map);
             async function getid() {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     console.log(position.coords);

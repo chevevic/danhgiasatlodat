@@ -1,3 +1,4 @@
+document.cookie = "name=value; SameSite=Strict; Secure; Path=/";
 async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
@@ -93,15 +94,14 @@ out body;`);
             const earthquakeLat = earthquake.geometry.coordinates[1];
             const earthquakeLon = earthquake.geometry.coordinates[0];
             const distance1 = getDistance(lat, lon, earthquakeLat, earthquakeLon);
-            const impact = magnitude / (1 + distance1);
-    
+            const impact = calculateImpact(magnitude,distance1);
             totalImpact += impact;
             count++;
         });
     } else {
         console.error("Dữ liệu động đất không hợp lệ hoặc không có dữ liệu features.");
     }
-    const Impact = count > 0 ? totalImpact : 0;
+    const Impact = count > 0 ? totalImpact / count : 0;
     const moistapi = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=soil_moisture_9_to_27cm`
     const response5 = await fetch(moistapi);
     const moistData = await response5.json();
@@ -131,9 +131,15 @@ script.onerror = function() {
 };
 document.head.appendChild(script);
 function getHumanData(city) {
+    if (city === "") {
+        return 0;
+    } else {
     try {
      return new Promise((resolve, reject) => {
-         var name = city;
+         const name = city;
+         if (name === "") {
+            return 0;
+         }
          const apiKeys = ['CvVjkVRAMC0qBCc3X00OPA==jL1dpztC8JYWK4Fm','bx1RyMZI6jijYhcOkN09oA==fWblJEURLHBnuQMP','1T+PdTDqdcBAN2KBPy3rUA==Azgxa1tszECyQmdB','jdXat9Ki5HubXgmipMFdAA==WftEvsVIXvufKXUf',]; // Thay 'YOUR_NEW_API_KEY' bằng API key mới của bạn
          let currentApiKeyIndex = 0;
  
@@ -169,7 +175,7 @@ function getHumanData(city) {
          console.error('Có lỗi trong quá trình thực thi:', error);
          return;
     }
- }
+ };}
 function calculateLandslideRisk(hazard, exposure, vulnerability) {
     if (hazard < 0 || exposure < 0 || vulnerability < 0) {
         return "Giá trị không hợp lệ. Tất cả các tham số phải lớn hơn hoặc bằng 0.";
@@ -190,8 +196,8 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
     return R * c;
 }
-function calculatehazard(slope,rain,soil,humid,wind) {
-    hazard = (((slope * (rain + soil + humid + wind)) / (2*(2+2+2+2))) * 100).toFixed(0);
+function calculatehazard(slope,rain,soil,humid,seismic,wind) {
+    hazard = (((slope * (rain + soil + humid + seismic + wind)) / (2*(2+2+2+0.5+2))) * 100).toFixed(0);
     return hazard
 }
 function getslopeFactor(slope) {
@@ -263,6 +269,13 @@ function calculateDensity(data, lat, lon, radius) {
 
     return total;
 }
+function getseismicFactor(seismic) {
+    if (seismic < 1) return 0.1;
+    if (seismic >= 1 && seismic < 2) return 0.3;
+    if (seismic >= 3 && seismic < 4) return 0.45;
+    if (seismic >= 4 && seismic <= 6) return 0.6; 
+    return 1;
+}
 async function getlatlonbycity(city) {
     api = `https://nominatim.openstreetmap.org/search?q=${city}&format=json`;
     const response = await fetch(api);
@@ -274,4 +287,9 @@ async function getlatlonbycity(city) {
         lat,
         lon
     };
+}
+function calculateImpact(magnitude, distance) {
+    if (distance < 1) distance = 1;
+    const impact = magnitude - Math.log10(distance/1000);
+    return impact > 0 ? impact : 0;
 }

@@ -1,4 +1,3 @@
-document.cookie = "name=value; SameSite=Strict; Secure; Path=/";
 async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;

@@ -22,35 +22,14 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-<p>
-    <b>Vị Trí Hiện Tại</b><br>
-    Kinh độ : <span id ="latitude"></span><br>
-    Vĩ độ : <span id ="longitude"></span><br>
-</p>
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            L.tileLayer(
-  'https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-  {
-    attribution: 'Tiles © Esri | Topographic',
+            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
     maxZoom: 20,
-  }
-).addTo(map);
-    const HoangSa = L.circle([16.66513746152365,112.7300262451172], {
-        color: 'green',
-        fillColor: 'green',
-        fillOpacity: 0.5,
-        radius: 24000
-        }).addTo(map);
-        HoangSa.bindPopup('quần đảo Hoàng Sa')
-    const TruongSa = L.circle([10.715936036343722,115.84259033203126], {
-        color: 'green',
-        fillColor: 'green',
-        fillOpacity: 0.5,
-        radius: 20000
-        }).addTo(map);
-        TruongSa.bindPopup('quần đảo Trường Sa')
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+            tiles.addTo(map);
             async function getid() {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     console.log(position.coords);
@@ -206,6 +185,9 @@
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </div>
     <p>
+        <b>Vị Trí Hiện Tại</b><br>
+        Kinh độ : <span id ="latitude"></span><br>
+        Vĩ độ : <span id ="longitude"></span><br>
         <b>Tìm Vị Trí</b><br>
         Kinh độ: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"><br>
         Vĩ độ: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">

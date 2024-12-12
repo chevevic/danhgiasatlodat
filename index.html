@@ -30,11 +30,13 @@
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
-    maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
-});
-    tiles.addTo(map);
+L.tileLayer(
+  'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {
+    attribution: 'Tiles © Esri',
+    maxZoom: 19,
+  }
+).addTo(map);
             async function getid() {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     console.log(position.coords);

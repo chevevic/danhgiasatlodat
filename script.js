@@ -214,10 +214,10 @@ function getslopeFactor(slope) {
 }
 function getrainFactor(rainfall) {
     if (rainfall < 0.1 ) return 0.05;
-    if (rainfall >=0.4 && rainfall < 1.2) return 0.25;
-    if (rainfall >= 1.2 && rainfall < 2.2) return 0.5;
-    if (rainfall >= 2.2 && rainfall < 5) return 1.0;
-    if (rainfall >= 5 && rainfall <10) return 1.5;
+    if (rainfall >= 0.1 && rainfall <0.4) return 0.25
+    if (rainfall >=0.4 && rainfall < 1.2) return 0.5;
+    if (rainfall >= 1.2 && rainfall < 2.2) return 1;
+    if (rainfall >= 2.2 && rainfall < 5) return 1.5;
     return 2.0;
 }
 

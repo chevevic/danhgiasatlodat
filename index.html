@@ -26,11 +26,11 @@
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri',
-        maxZoom: 19
-    });
-    esriLayer.addTo(map);
+            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+});
+            tiles.addTo(map);
     const HoangSa = L.circle([16.66513746152365,112.7300262451172], {
         color: 'green',
         fillColor: 'green',

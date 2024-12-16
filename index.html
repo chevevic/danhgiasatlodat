@@ -22,14 +22,29 @@
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
+
     <div id="Map">
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
-    maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
-});
-            tiles.addTo(map);
+            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 19
+    });
+    esriLayer.addTo(map);
+    const HoangSa = L.circle([16.66513746152365,112.7300262451172], {
+        color: 'green',
+        fillColor: 'green',
+        fillOpacity: 0.5,
+        radius: 24000
+        }).addTo(map);
+        HoangSa.bindPopup('quần đảo Hoàng Sa')
+    const TruongSa = L.circle([10.715936036343722,115.84259033203126], {
+        color: 'green',
+        fillColor: 'green',
+        fillOpacity: 0.5,
+        radius: 20000
+        }).addTo(map);
+        TruongSa.bindPopup('quần đảo Trường Sa')
             async function getid() {
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     console.log(position.coords);
@@ -49,14 +64,16 @@
                 const humid = (weatherData.moist)*100;
                 const slope = (weatherData.slope).toFixed(2);
                 let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
+                const rain = (weatherData.hourly.daily.precipitation_sum[1])+(weatherData.hourly.daily.precipitation_sum[2]);
+                const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
                 const soil = weatherData.soiltype.wrb_class_name;
-                const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không";
+                const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
                 const Density = weatherData.Density;
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
-                const b = getrainFactor(rainfall);
+                const b = getrainFactor(rain);
                 const c = getwindFactor(wind);
                 const d = getsoilFactor(soil);
                 const e = getseismicFactor(seismic);
@@ -70,9 +87,10 @@
                     <b>Độ dốc:</b> `+ slope + `°<br>
                     <b>Loại đất:</b> `+ soil + `<br>
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast+`mm<br>
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
+                    <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
                 if (hazard >= 70) {
@@ -140,14 +158,16 @@
                 const humid = (weatherData.moist)*100;
                 const slope = (weatherData.slope).toFixed(2);
                 let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const seismic = weatherData.Impact.toFixed(2);
+                const rain = (weatherData.hourly.daily.precipitation_sum[1])+(weatherData.hourly.daily.precipitation_sum[2]);
+                const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
+                const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
                 const soil = weatherData.soiltype.wrb_class_name;
-                const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không";
+                const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
                 const Density = weatherData.Density;
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
-                const b = getrainFactor(rainfall);
+                const b = getrainFactor(rain);
                 const c = getwindFactor(wind);
                 const d = getsoilFactor(soil);
                 const e = getseismicFactor(seismic);
@@ -161,9 +181,10 @@
                     <b>Độ dốc:</b> `+ slope + `°<br>
                     <b>Loại đất:</b> `+ soil + `<br>
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
+                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast+`mm<br>
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
+                    <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
                     <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
                 if (hazard >= 70) {

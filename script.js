@@ -1,20 +1,22 @@
+document.cookie = "name=value; SameSite=Strict; Secure; Path=/";
 async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
     const api_url11 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat - 0.0004}&longitude=${lon - 0.0004}`;
-    const api_url12 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat + 0.0004}&longitude=${lon + 0.0004}`;
     const api_url2 =`https://rest.isric.org/soilgrids/v2.0/classification/query?lon=${lon}&lat=${lat}&number_classes=12`
     const response = await fetch(api_url);
     const json = await response.json();
     console.log(json);
-    const response11 = await fetch(api_url11);
+    const enddate = getDates(json.dt).currentDate;
+    const startdate = getDates(json.dt).twoDaysAgo;
+    const api_url12 = `https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${lat + 0.0004}&longitude=${lon + 0.0004}&start_date=${startdate}&end_date=${enddate}&daily=precipitation_sum&timezone=Asia%2FBangkok`
     const response12 = await fetch(api_url12);
-    const elevationData1 = await response11.json();
-    const elevationData2 = await response12.json();
-    console.log(elevationData1);
-    console.log(elevationData2);
+    const hourly = await response12.json();
+    console.log(hourly);
+    const elevation11 = await fetch(api_url11);;
+    const elevationData1 = await elevation11.json();
     const elevation1 = elevationData1.elevation[0];
-    const elevation2 = elevationData2.elevation[0];
+    const elevation2 = hourly.elevation;
     const distance = getDistance(lat-0.0004, lon-0.0004, lat + 0.0004, lon + 0.0004); 
     const slope = Math.atan((Math.abs(elevation2 - elevation1)) / distance)*(180 / Math.PI);
     console.log(`Slope: ${slope} °`);
@@ -111,6 +113,7 @@ out body;`);
     const moist = moistData.hourly.soil_moisture_9_to_27cm[0];
     return {
         json,
+        hourly,
         slope,
         soiltype,
         landuse,
@@ -200,7 +203,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 function calculatehazard(slope,rain,soil,humid,seismic,wind) {
-    hazard = (((slope * (rain + soil + humid + seismic + wind)) / (2*(2+2+2+0.5+2))) * 100).toFixed(0);
+    hazard = (((slope * (rain + soil + humid + seismic + wind)) / (2*(2+2+2+2))) * 100).toFixed(0);
     return hazard
 }
 function getslopeFactor(slope) {
@@ -213,14 +216,14 @@ function getslopeFactor(slope) {
     return 2.0;
 }
 function getrainFactor(rainfall) {
-    if (rainfall < 0.1 ) return 0.05;
-    if (rainfall >= 0.1 && rainfall <0.4) return 0.25
-    if (rainfall >=0.4 && rainfall < 1.2) return 0.5;
-    if (rainfall >= 1.2 && rainfall < 2.2) return 1;
-    if (rainfall >= 2.2 && rainfall < 5) return 1.5;
+    if (rainfall < 20 ) return 0.05;
+    if (rainfall >= 20 && rainfall < 40) return 0.25
+    if (rainfall >=40 && rainfall < 60) return 0.6;
+    if (rainfall >= 60 && rainfall < 100) return 1.1;
+    if (rainfall >= 10 && rainfall < 140) return 1.5;
+    if (rainfall >= 140 && rainfall < 160) return 1.75;
     return 2.0;
 }
-
 function getsoilFactor(soil) {
     if (soil === "arenosols" || soil === "histosols") return 2.0;
     if (soil === "Vertisols" || soil === "Gleysols") return 1.5;
@@ -229,7 +232,6 @@ function getsoilFactor(soil) {
     if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.4;
     return 0.2;
 }
-
 function getwindFactor(wind) {
     if (wind < 12) return 0.1;
     if (wind >= 12 && wind < 20) return 0.5;
@@ -237,18 +239,12 @@ function getwindFactor(wind) {
     if (wind >= 30 && wind <= 40) return 1.5; 
     return 2.0;
 }
-
 function getsoilmoistureFactor(humid) {
     if (humid < 10) return 0.1;
     if (humid >= 10 && humid < 15) return 0.5;
     if (humid >=15 && humid < 30) return 1.0;
     if (humid >= 30 && humid <= 40) return 1.5;
     return 2.0;
-}
-function convertDateFormat(dateString) {
-    const [day, month, year] = dateString.split('/');
-    const formattedDate = `${year}-${month-1}-${day}`;
-    return formattedDate;
 }
 function calculateDensity(data, lat, lon, radius) {
     let buildingCount = 0;
@@ -295,4 +291,15 @@ function calculateImpact(magnitude, distance) {
     if (distance < 1) distance = 1;
     const impact = magnitude - Math.log10(distance/1000);
     return impact > 0 ? impact : 0;
+}
+function getDates(timestamp = Date.now()) {
+    const currentDate = new Date(timestamp*1000);
+    const formattedCurrentDate = currentDate.toISOString().split('T')[0];
+    const twoDaysAgo = new Date(timestamp*1000);
+    twoDaysAgo.setDate(currentDate.getDate() - 2);
+    const formattedTwoDaysAgo = twoDaysAgo.toISOString().split('T')[0];
+    return {
+        currentDate: formattedCurrentDate,
+        twoDaysAgo: formattedTwoDaysAgo
+    };
 }

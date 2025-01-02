@@ -203,48 +203,38 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 function calculatehazard(slope,rain,soil,humid,seismic,wind) {
-    hazard = (((slope * (rain + soil + humid + seismic + wind)) / (2*(2+2+2+2))) * 100).toFixed(0);
+    hazard = ((0.36 * slope + 0.22 * rain + 0.16 * soil + 0.18 * humid + 0.08 * wind + 0.08 * seismic) * 100).toFixed(0);
     return hazard
 }
 function getslopeFactor(slope) {
-    if (slope < 1) return 0.05;
-    if (slope >= 1 && slope < 3) return 0.25;
-    if (slope >= 3 && slope < 10) return 0.5;
-    if (slope >= 10 && slope < 18) return 1;
-    if (slope >= 18 && slope <= 30) return 1.3;
-    if (slope > 30 && slope <= 40) return 1.75; 
-    return 2.0;
+    return (slope/(40));
 }
 function getrainFactor(rainfall) {
-    if (rainfall < 20 ) return 0.05;
-    if (rainfall >= 20 && rainfall < 40) return 0.25
-    if (rainfall >=40 && rainfall < 60) return 0.6;
-    if (rainfall >= 60 && rainfall < 100) return 1.1;
-    if (rainfall >= 10 && rainfall < 140) return 1.5;
-    if (rainfall >= 140 && rainfall < 160) return 1.75;
-    return 2.0;
+    if (rainfall < 7 ) return 0.025;
+    if (rainfall >= 7 && rainfall < 14) return 0.125
+    if (rainfall >= 14 && rainfall < 20) return 0.3;
+    if (rainfall >= 20 && rainfall < 27) return 0.6;
+    if (rainfall >= 27 && rainfall < 35) return 0.7;
+    if (rainfall >= 35 && rainfall < 42) return 0.9;
+    return 1.0;
 }
 function getsoilFactor(soil) {
-    if (soil === "arenosols" || soil === "histosols") return 2.0;
-    if (soil === "Vertisols" || soil === "Gleysols") return 1.5;
-    if (soil === "Cambisols" || soil === "Acrisols") return 1.2;
-    if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.8;
-    if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.4;
-    return 0.2;
+    if (soil === "arenosols" || soil === "histosols") return 1.0;
+    if (soil === "Vertisols" || soil === "Gleysols") return 0.75;
+    if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
+    if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
+    if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
+    return 0.1;
 }
 function getwindFactor(wind) {
-    if (wind < 12) return 0.1;
+    if (wind < 6) return 0.1;
+    if (wind >= 6 && wind < 12) return 0.25;
     if (wind >= 12 && wind < 20) return 0.5;
-    if (wind >= 20 && wind < 30) return 1.0;
-    if (wind >= 30 && wind <= 40) return 1.5; 
-    return 2.0;
+    if (wind >= 20 && wind <= 30) return 0.75; 
+    return 1.0;
 }
 function getsoilmoistureFactor(humid) {
-    if (humid < 10) return 0.1;
-    if (humid >= 10 && humid < 15) return 0.5;
-    if (humid >=15 && humid < 30) return 1.0;
-    if (humid >= 30 && humid <= 40) return 1.5;
-    return 2.0;
+return (humid/(40));
 }
 function calculateDensity(data, lat, lon, radius) {
     let buildingCount = 0;

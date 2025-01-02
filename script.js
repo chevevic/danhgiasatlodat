@@ -202,7 +202,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
     return R * c;
 }
-function calculatehazard(slope,rain,soil,humid,seismic,wind) {
+function calculatehazard(slope,rain,wind,soil,seismic,humid) {
     hazard = (((0.4 * slope) + (0.25 * rain) + (0.12 * soil) + (0.12 * humid) + (0.11 * wind) + (0.04 * seismic)) * 100).toFixed(0);
     return hazard
 }

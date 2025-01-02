@@ -236,7 +236,8 @@ function getwindFactor(wind) {
     return 1.0;
 }
 function getsoilmoistureFactor(humid) {
-return (humid/(90));
+if (humid > 20) return ((humid - 20)/(60));
+else return ((20 - humid)/(20));
 }
 function calculateDensity(data, lat, lon, radius) {
     let buildingCount = 0;

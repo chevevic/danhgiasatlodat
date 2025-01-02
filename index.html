@@ -64,7 +64,7 @@
                 const humid = (weatherData.moist)*100;
                 const slope = (weatherData.slope).toFixed(2);
                 let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const rain = (weatherData.hourly.daily.precipitation_sum[1])+(weatherData.hourly.daily.precipitation_sum[2]);
+                const rain = (weatherData.hourly.daily.precipitation_sum[0])+(weatherData.hourly.daily.precipitation_sum[1]);
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
@@ -152,7 +152,7 @@
                 const humid = (weatherData.moist)*100;
                 const slope = (weatherData.slope).toFixed(2);
                 let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const rain = (weatherData.hourly.daily.precipitation_sum[1])+(weatherData.hourly.daily.precipitation_sum[2]);
+                const rain = (weatherData.hourly.daily.precipitation_sum[0])+(weatherData.hourly.daily.precipitation_sum[1]);
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);

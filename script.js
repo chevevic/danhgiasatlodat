@@ -210,12 +210,13 @@ function getslopeFactor(slope) {
     return (slope/(40));
 }
 function getrainFactor(rainfall) {
-    if (rainfall < 9 ) return 0.025;
-    if (rainfall >= 9 && rainfall < 14) return 0.125
-    if (rainfall >= 14 && rainfall < 20) return 0.3;
-    if (rainfall >= 20 && rainfall < 27) return 0.6;
-    if (rainfall >= 27 && rainfall < 35) return 0.7;
-    if (rainfall >= 35 && rainfall < 42) return 0.9;
+    if (rainfall < 9 ) return 0;
+    if (rainfall >= 9 && rainfall < 14) return 0.025;
+    if (rainfall >= 14 && rainfall < 20) return 0.2;
+    if (rainfall >= 20 && rainfall < 27) return 0.4;
+    if (rainfall >= 27 && rainfall < 35) return 0.6;
+    if (rainfall >= 35 && rainfall < 42) return 0.8;
+    if (rainfall >= 42 && rainfall < 60) return 0.9;
     return 1.0;
 }
 function getsoilFactor(soil) {
@@ -224,13 +225,14 @@ function getsoilFactor(soil) {
     if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
     if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
     if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
-    return 0.1;
+    return 0.05;
 }
 function getwindFactor(wind) {
-    if (wind < 6) return 0.1;
-    if (wind >= 6 && wind < 12) return 0.25;
-    if (wind >= 12 && wind < 20) return 0.5;
-    if (wind >= 20 && wind <= 30) return 0.75; 
+    if (wind < 6) return 0.025;
+    if (wind >= 6 && wind < 12) return 0.15;
+    if (wind >= 12 && wind < 20) return 0.4;
+    if (wind >= 20 && wind <= 30) return 0.6;
+    if (wind >= 30 && wind <=42) return 0.8;
     return 1.0;
 }
 function getsoilmoistureFactor(humid) {
@@ -259,8 +261,8 @@ function calculateDensity(data, lat, lon, radius) {
     return total;
 }
 function getseismicFactor(seismic) {
-    if (seismic < 1) return 0.1;
-    if (seismic >= 1 && seismic < 2) return 0.3;
+    if (seismic < 1) return 0.05;
+    if (seismic >= 1 && seismic < 2) return 0.25;
     if (seismic >= 3 && seismic < 4) return 0.45;
     if (seismic >= 4 && seismic <= 6) return 0.6; 
     return 1;

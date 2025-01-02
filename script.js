@@ -203,7 +203,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 function calculatehazard(slope,rain,soil,humid,seismic,wind) {
-    hazard = ((0.4 * slope + 0.25 * rain + 0.12 * soil + 0.12 * humid + 0.11 * wind + 0.08 * seismic) * 100).toFixed(0);
+    hazard = ((0.4 * slope + 0.25 * rain + 0.12 * soil + 0.12 * humid + 0.11 * wind + 0.04 * seismic) * 100).toFixed(0);
     return hazard
 }
 function getslopeFactor(slope) {
@@ -225,7 +225,7 @@ function getsoilFactor(soil) {
     if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
     if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
     if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
-    return 0.05;
+    return 0.025;
 }
 function getwindFactor(wind) {
     if (wind < 6) return 0.025;

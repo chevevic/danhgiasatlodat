@@ -203,11 +203,11 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 function calculatehazard(slope,rain,soil,humid,seismic,wind) {
-    hazard = ((0.4 * slope + 0.25 * rain + 0.12 * soil + 0.12 * humid + 0.11 * wind + 0.04 * seismic) * 100).toFixed(0);
+    hazard = (((0.4 * slope) + (0.25 * rain) + (0.12 * soil) + (0.12 * humid) + (0.11 * wind) + (0.04 * seismic)) * 100).toFixed(0);
     return hazard
 }
 function getslopeFactor(slope) {
-    return (slope/(40));
+    return (slope / (40));
 }
 function getrainFactor(rainfall) {
     if (rainfall < 9 ) return 0;
@@ -264,7 +264,7 @@ function calculateDensity(data, lat, lon, radius) {
 function getseismicFactor(seismic) {
     if (seismic < 1) return 0.05;
     if (seismic >= 1 && seismic < 2) return 0.25;
-    if (seismic >= 3 && seismic < 4) return 0.45;
+    if (seismic >= 2 && seismic < 4) return 0.45;
     if (seismic >= 4 && seismic <= 6) return 0.6; 
     return 1;
 }

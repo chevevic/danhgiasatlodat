@@ -216,7 +216,7 @@ function getrainFactor(rainfall) {
     if (rainfall >= 20 && rainfall < 27) return 0.4;
     if (rainfall >= 27 && rainfall < 35) return 0.6;
     if (rainfall >= 35 && rainfall < 42) return 0.8;
-    if (rainfall >= 42 && rainfall < 60) return 0.9;
+    if (rainfall >= 42 && rainfall < 50) return 0.9;
     return 1.0;
 }
 function getsoilFactor(soil) {
@@ -225,18 +225,19 @@ function getsoilFactor(soil) {
     if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
     if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
     if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
-    return 0.02;
+    return 0.01;
 }
 function getwindFactor(wind) {
-    if (wind < 10) return 0.025;
+    if (wind <= 6) return 0;
+    if (wind > 6 && wind < 10) return 0.025;
     if (wind >= 10 && wind < 16) return 0.1;
     if (wind >= 16 && wind < 22) return 0.4;
     if (wind >= 22 && wind <= 30) return 0.6;
-    if (wind >= 30 && wind <=42) return 0.8;
+    if (wind > 30 && wind <=42) return 0.8;
     return 1.0;
 }
 function getsoilmoistureFactor(humid) {
-if (humid > 25) return ((humid - 25)/(60));
+if (humid > 25) return ((humid - 25)/(75));
 else return ((25 - humid)/(25));
 }
 function calculateDensity(data, lat, lon, radius) {

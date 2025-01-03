@@ -225,13 +225,13 @@ function getsoilFactor(soil) {
     if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
     if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
     if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
-    return 0.025;
+    return 0.02;
 }
 function getwindFactor(wind) {
-    if (wind < 6) return 0.025;
-    if (wind >= 6 && wind < 12) return 0.15;
-    if (wind >= 12 && wind < 20) return 0.4;
-    if (wind >= 20 && wind <= 30) return 0.6;
+    if (wind < 10) return 0.025;
+    if (wind >= 10 && wind < 16) return 0.1;
+    if (wind >= 16 && wind < 22) return 0.4;
+    if (wind >= 22 && wind <= 30) return 0.6;
     if (wind >= 30 && wind <=42) return 0.8;
     return 1.0;
 }
@@ -262,7 +262,7 @@ function calculateDensity(data, lat, lon, radius) {
     return total;
 }
 function getseismicFactor(seismic) {
-    if (seismic < 1) return 0.05;
+    if (seismic < 1) return 0.005;
     if (seismic >= 1 && seismic < 2) return 0.25;
     if (seismic >= 2 && seismic < 4) return 0.45;
     if (seismic >= 4 && seismic <= 6) return 0.6; 

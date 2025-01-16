@@ -23,6 +23,10 @@ async function getweather(lat,lon) {
     const response2 = await fetch(api_url2);
     const soiltype = await response2.json();
     console.log(soiltype);
+    const api_url6 = `https://us1.locationiq.com/v1/reverse?key=pk.0d07b084d9adef628f0e7240262d65e6&lat=${lat}&lon=${lon}&format=json&`;
+    const response6 = await fetch(api_url6);
+    const locationdata = await response6.json();
+    console.log(locationdata);
     const response3 = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];
 (
   way["landuse"](around:500, ${lat}, ${lon});
@@ -119,7 +123,8 @@ out body;`);
         landuse,
         Density,
         Impact,
-        moist
+        moist,
+        locationdata
     };
     } catch (error) {
         console.error("An error occurred:", error);

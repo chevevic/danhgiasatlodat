@@ -6,7 +6,7 @@ const urlsToCache = [
     '/index.html',  
     '/styles.css',  
     '/script.js',  
-    '/images/favicon.ico', // 
+    '/favicon.ico', // 
 self.addEventListener('install', (event) => {  
     event.waitUntil(  
         caches.open(CACHE_NAME)  

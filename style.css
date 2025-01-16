@@ -1,6 +1,6 @@
 body {
     color : rgb(23, 65, 3);
-    background-color: rgb(191, 236, 190);
+    background-color: rgb(203, 241, 202);
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 2.6dvh;
 }
@@ -27,7 +27,13 @@ body {
     font-weight: bold;
     font-size: 14;
 }
-#ways-container p {
-    margin: 0;
-    line-height: 1.2;
+.location {
+    color: rgb(10, 90, 3);
+    font-weight: bold;
+    font-size: 14px;
+}
+.latlon {
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    font-size: 14px;
 }

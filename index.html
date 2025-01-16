@@ -59,6 +59,11 @@
                     marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
+                const address1 = weatherData.locationdata.address.road;
+                const address2 = weatherData.locationdata.address.city;
+                const address3 = weatherData.locationdata.address.state;
+                const address4 = weatherData.locationdata.address.country;
+                const address5 = weatherData.locationdata.address.suburb;
                 const timestamp = weatherData.json.dt;
                 const date = new Date(timestamp * 1000);
                 const humid = (weatherData.moist)*100;
@@ -80,6 +85,10 @@
                 const g = getsoilmoistureFactor(humid);
                 const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
+                    <b><span class="location">ĐỊA CHỈ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
+                    ${address3}, ${address4}<br>
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b><span class ="latlon">VỊ TRÍ:<.span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
@@ -91,8 +100,7 @@
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>`
                 if (hazard >= 70) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {
@@ -147,6 +155,11 @@
                     marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
+                const address1 = weatherData.locationdata.address.road;
+                const address2 = weatherData.locationdata.address.city;
+                const address3 = weatherData.locationdata.address.state;
+                const address4 = weatherData.locationdata.address.country;
+                const address5 = weatherData.locationdata.address.suburb;
                 const timestamp = weatherData.json.dt;
                 const date = new Date(timestamp * 1000);
                 const humid = (weatherData.moist)*100;
@@ -168,6 +181,10 @@
                 const g = getsoilmoistureFactor(humid);
                 const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
+                    <b><span class="location">ĐỊA CHỈ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
+                    ${address3}, ${address4}<br>
+                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b><span class ="latlon">VỊ TRÍ:<.span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
@@ -179,8 +196,7 @@
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
                     <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>`;
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>`
                 if (hazard >= 70) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=55 && hazard <70) {

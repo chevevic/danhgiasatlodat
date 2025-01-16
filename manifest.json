@@ -1,0 +1,24 @@
+{  
+  "name": "Đánh Giá Sạt Lở Đất",  
+  "short_name": "Landslide Risk",  
+  "start_url": "/danhgiasatlodat/",  
+  "display": "standalone",  
+  "background_color": "#ffffff",  
+  "theme_color": "#3E50B4",       
+  "icons": [  
+    {  
+      "src": "https://png.pngtree.com/png-vector/20220519/ourmid/pngtree-mountain-landslide-with-falling-rocks-png-image_4703797.png",  
+      "sizes": "360x360",  
+      "type": "image/png"  
+    },  
+    {  
+      "src": "https://png.pngtree.com/png-vector/20220519/ourmid/pngtree-mountain-landslide-with-falling-rocks-png-image_4703797.png",  
+      "sizes": "360x360",  
+      "type": "image/png"  
+    }  
+  ],  
+  "orientation": "portrait",  
+  "scope": "/danhgiasatlodat/",  
+  "description": "Ứng dụng giúp đánh giá và cảnh báo rủi ro sạt lở đất.",  
+  "lang": "vi"  
+}

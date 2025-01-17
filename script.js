@@ -313,3 +313,8 @@ if ('serviceWorker' in navigator) {
             });  
     });  
 }
+document.querySelectorAll('.map-switch button').forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.stopPropagation(); // Ngăn sự kiện click lan truyền
+    });
+});

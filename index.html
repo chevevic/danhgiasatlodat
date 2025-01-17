@@ -13,25 +13,58 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
+    <link rel="manifest" href="manifest.json">
     <style>
          #Map {
-         height: 600px; 
+         height: 620px;
+         position: relative;
         }
          </style>
     <title>Sạt Lở Đất</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
 
     <div id="Map">
+    <div class="map-switch">
+        <button id="googleMapButton">Street Map</button>
+        <button id="esriTopoButton">Topographic Map</button>
+        <button id="esriImageryLayer">Imagery Map</button>
+    </div>
+    <div id="map-overlay"></div>
         <script>
             const map = L.map('Map').setView([0,0], 10);
-            const tiles = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
-    maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
-});
-            tiles.addTo(map);
+            const googleMapLayer = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}', {
+                attribution: 'Google',
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            }).addTo(map);
+            const esriImageryLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Esri, Maxar, USGS, NOAA',
+                maxZoom: 19
+            });
+            const esriTopoLayer = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Esri, USGS, NOAA',
+                maxZoom: 16
+            });
+            document.getElementById('googleMapButton').addEventListener('click', () => {
+                if (!map.hasLayer(googleMapLayer)) {
+                    map.removeLayer(esriTopoLayer);
+                    map.removeLayer(esriImageryLayer);
+                    map.addLayer(googleMapLayer);
+            }});
+            document.getElementById('esriTopoButton').addEventListener('click', () => {
+                if (!map.hasLayer(esriTopoLayer)) {
+                    map.removeLayer(googleMapLayer);
+                    map.removeLayer(esriImageryLayer);
+                    map.addLayer(esriTopoLayer);
+            }});
+            document.getElementById('esriImageryLayer').addEventListener('click', () => {
+                if (!map.hasLayer(esriImageryLayer)) {
+                    map.removeLayer(googleMapLayer);
+                    map.removeLayer(esriTopoLayer);
+                    map.addLayer(esriImageryLayer);
+            }});
     const HoangSa = L.circle([16.66513746152365,112.7300262451172], {
         color: 'green',
         fillColor: 'green',
@@ -86,10 +119,10 @@
                 const g = getsoilmoistureFactor(humid);
                 const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
-                    <b><span class="location">ĐỊA CHỈ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
+                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
                     ${address3}, ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b><span class ="latlon">VỊ TRÍ:</span></b> ${lat}, ${lon}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
@@ -182,10 +215,10 @@
                 const g = getsoilmoistureFactor(humid);
                 const hazard = calculatehazard(a,b,c,d,e,g);
                 const weatherContent = `
-                    <b><span class="location">ĐỊA CHỈ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
+                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
                     ${address3}, ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b><span class ="latlon">VỊ TRÍ:</span></b> ${lat}, ${lon}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>

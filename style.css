@@ -103,7 +103,7 @@ body {
     background: #adf1b6;
     width: 100%; /* Hạn chế chiều cao của nội dung */
     max-height: 40vh;
-    border-radius: 16px 16px 0 0; /* Bo góc trên */
+    border-radius: 10px 10px 10px 10px; /* Bo góc trên */
     overflow-y: auto; /* Bật cuộn nội dung */
     padding: 20px;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);

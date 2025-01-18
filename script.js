@@ -304,7 +304,7 @@ function getDates(timestamp = Date.now()) {
 }
 if ('serviceWorker' in navigator) {  
     window.addEventListener('load', () => {  
-        navigator.serviceWorker.register('/danhgiasatlodat/service-worker.js')  
+        navigator.serviceWorker.register('/service-worker.js')  
             .then((registration) => {  
                 console.log('Service Worker registered with scope:', registration.scope);  
             })  
@@ -318,3 +318,37 @@ document.querySelectorAll('.map-switch button').forEach(button => {
         e.stopPropagation(); // Ngăn sự kiện click lan truyền
     });
 });
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const popup = document.querySelector('.popup');
+    const openPopupButton = document.getElementById('openPopup');
+    openPopupButton.addEventListener('click', () => {
+        // Kiểm tra nếu popup hiện tại đang được hiển thị (display: flex)
+        if (popup.style.display === 'flex') {
+            // Nếu popup đang hiển thị, ẩn nó
+            popup.style.bottom = '-100%'; // Trượt xuống
+            setTimeout(() => {
+                popup.style.display = 'none'; // Ẩn hoàn toàn sau khi trượt
+            }, 300);
+        } else {
+            // Nếu popup không hiển thị, hiển thị nó
+            popup.style.display = 'flex'; // Hiển thị popup
+            setTimeout(() => {
+                popup.style.bottom = '0'; // Trượt lên
+            }, 50); // Đảm bảo phần tử có đủ thời gian để thay đổi display trước khi trượt lên
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const openPopupButton = document.getElementById('openPopup');
+        if (openPopupButton && popup) {
+        }
+    });
+        document.querySelectorAll('#popupContent').forEach(content => {
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    }
+);

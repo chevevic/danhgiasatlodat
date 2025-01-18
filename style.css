@@ -50,13 +50,62 @@ body {
 }
 
 .map-switch button {
-    padding: 6.5px;
+    padding: 18px;
     cursor: pointer;
-    background-color: rgb(255, 255, 255); /* Màu nền trắng */
-    color: rgb(8, 121, 32); /* Màu chữ */
     font-weight: bold;
     border-radius: 3px;
     font-size: 16px;
     border: none;
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
+}
+
+#googleMapButton {
+    background-image: url('road.png');
+    background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
+    background-repeat: no-repeat; /* Hình ảnh không lặp lại */
+    background-position: center;
+}
+
+#esriTopoButton {
+    background-image: url('mountain.png');
+    background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
+    background-repeat: no-repeat; /* Hình ảnh không lặp lại */
+    background-position: center;
+}
+
+#esriImageryLayer {
+    background-image: url('globe.png');
+    background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
+    background-repeat: no-repeat; /* Hình ảnh không lặp lại */
+    background-position: center;
+}
+#openPopup {
+    background-image: url('search.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.popup {
+    position: fixed;
+    bottom: -100%; /* Trượt từ dưới */
+    left: 0;
+    width: 100vw;
+    height: 40vh;
+    background-color: rgb(190, 245, 190); /* Nền mờ */
+    display: none;
+    justify-content: left;
+    align-items: flex-end;
+    z-index: 1000; /* Đảm bảo nằm trên cùng */
+    transition: bottom 0.3s ease-in-out;
+    overflow: hidden;
+}
+#popupContent {
+    background: #adf1b6;
+    width: 100%; /* Hạn chế chiều cao của nội dung */
+    max-height: 40vh;
+    border-radius: 16px 16px 0 0; /* Bo góc trên */
+    overflow-y: auto; /* Bật cuộn nội dung */
+    padding: 20px;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+    text-align: left;
 }

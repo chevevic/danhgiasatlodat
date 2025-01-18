@@ -60,27 +60,27 @@ body {
 }
 
 #googleMapButton {
-    background-image: url('road.png');
+    background-image: url('1road.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
 
 #esriTopoButton {
-    background-image: url('mountain.png');
+    background-image: url('1mountain.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
 
 #esriImageryLayer {
-    background-image: url('globe.png');
+    background-image: url('1globe.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
 #openPopup {
-    background-image: url('search.png');
+    background-image: url('1search.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

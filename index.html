@@ -15,21 +15,27 @@
     crossorigin=""></script>
     <link rel="manifest" href="manifest.json">
     <style>
-         #Map {
-         height: 620px;
-         position: relative;
+        #Map {
+            position: absolute; /* Hoặc fixed nếu muốn giữ nguyên khi cuộn */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Chiều rộng chiếm toàn bộ cửa sổ */
+            height: 100vh; /* Chiều cao chiếm toàn bộ cửa sổ */
+            margin: 0;
+            padding: 0;
+            z-index: 0; /* Đảm bảo không bị che bởi các phần tử khác */
         }
          </style>
     <title>Sạt Lở Đất</title>
     <link rel="icon" href="favicon.ico" type = "image/x-icon"/>
 </head>
 <body>
-
     <div id="Map">
     <div class="map-switch">
-        <button id="googleMapButton">Street Map</button>
-        <button id="esriTopoButton">Topographic Map</button>
-        <button id="esriImageryLayer">Imagery Map</button>
+        <button id="googleMapButton"></button>
+        <button id="esriTopoButton"></button>
+        <button id="esriImageryLayer"></button>
+        <button id="openPopup"></button>
     </div>
     <div id="map-overlay"></div>
         <script>
@@ -218,7 +224,7 @@
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
                     ${address3}, ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
@@ -249,19 +255,23 @@
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </div>
-    <p>
-        <b>Vị Trí Hiện Tại</b><br>
-        Kinh độ : <span id ="latitude"></span><br>
-        Vĩ độ : <span id ="longitude"></span><br>
-        <b>Tìm Vị Trí</b><br>
-        Kinh độ: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"><br>
-        Vĩ độ: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
-        <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button><br>
-        <small>-hoặc-</small><br>
-        <b>Tên Thành Phố:</b><br> <input type="text" id="cityname" placeholder="Hãy Điền Vào Tên Thành Phố">
-        <button onclick="getweatherbycity(String(document.getElementById('cityname').value))"><b>Tìm</b></button><br>
-    </p>
-    <h2>Thông Tin Về Địa Điểm:</h2>
-    <div id="ways-container"></div>
+    <div class="popup">
+        <div id = "popupContent">
+        <p>
+            <b>Vị Trí Hiện Tại</b><br>
+            Kinh độ : <span id ="latitude"></span><br>
+            Vĩ độ : <span id ="longitude"></span><br>
+            <b>Tìm Vị Trí</b><br>
+            Kinh độ: <input type="text" id="latitude1" placeholder="Hãy Điền Vào Kinh Độ"><br>
+            Vĩ độ: <input type="text" id="longitude1" placeholder="Hãy Điền Vào Vĩ Độ">
+            <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button><br>
+            <small>-hoặc-</small><br>
+            <b>Tên Thành Phố:</b><br> <input type="text" id="cityname" placeholder="Hãy Điền Vào Tên Thành Phố">
+            <button onclick="getweatherbycity(String(document.getElementById('cityname').value))"><b>Tìm</b></button><br>
+        </p>
+        <h2>Thông Tin Về Địa Điểm:</h2>
+        <div id="ways-container"></div>
+        </div>
+    </div>
 </body>
 </html>

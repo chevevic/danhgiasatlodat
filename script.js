@@ -304,7 +304,7 @@ function getDates(timestamp = Date.now()) {
 }
 if ('serviceWorker' in navigator) {  
     window.addEventListener('load', () => {  
-        navigator.serviceWorker.register('/danhgiasatlodat/service-worker.js')  
+        navigator.serviceWorker.register('/service-worker.js')  
             .then((registration) => {  
                 console.log('Service Worker registered with scope:', registration.scope);  
             })  
@@ -315,7 +315,7 @@ if ('serviceWorker' in navigator) {
 }
 document.querySelectorAll('.map-switch button').forEach(button => {
     button.addEventListener('click', (e) => {
-        e.stopPropagation(); // Ngăn sự kiện click lan truyền
+        e.stopPropagation();
     });
 });
 function sleep(ms) {
@@ -323,21 +323,18 @@ function sleep(ms) {
 }
 document.addEventListener('DOMContentLoaded', function () {
     const popup = document.querySelector('.popup');
-    const openPopupButton = document.getElementById('openPopup');
+    const openPopupButton = document.querySelector('.openPopup');
     openPopupButton.addEventListener('click', () => {
-        // Kiểm tra nếu popup hiện tại đang được hiển thị (display: flex)
         if (popup.style.display === 'flex') {
-            // Nếu popup đang hiển thị, ẩn nó
-            popup.style.bottom = '-100%'; // Trượt xuống
+            popup.style.bottom = '-100%';
             setTimeout(() => {
-                popup.style.display = 'none'; // Ẩn hoàn toàn sau khi trượt
+                popup.style.display = 'none';
             }, 300);
         } else {
-            // Nếu popup không hiển thị, hiển thị nó
-            popup.style.display = 'flex'; // Hiển thị popup
+            popup.style.display = 'flex';
             setTimeout(() => {
-                popup.style.bottom = '0'; // Trượt lên
-            }, 50); // Đảm bảo phần tử có đủ thời gian để thay đổi display trước khi trượt lên
+                popup.style.bottom = '0';
+            }, 50);
         }
     });
     document.addEventListener('DOMContentLoaded', function () {
@@ -345,10 +342,26 @@ document.addEventListener('DOMContentLoaded', function () {
         if (openPopupButton && popup) {
         }
     });
+    const button = document.querySelector('.openPopup');
+    const tooltip = document.querySelector('.tooltip-text');
+
+    button.addEventListener('mouseenter', () => {
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+    });
+
+    button.addEventListener('mouseleave', () => {
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.opacity = '0';
+    });
         document.querySelectorAll('#popupContent').forEach(content => {
             content.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
         });
-    }
-);
+    });
+    document.querySelectorAll('.popup-button button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });

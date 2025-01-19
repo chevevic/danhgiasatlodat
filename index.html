@@ -35,7 +35,10 @@
         <button id="googleMapButton"></button>
         <button id="esriTopoButton"></button>
         <button id="esriImageryLayer"></button>
-        <button id="openPopup"></button>
+    </div>
+    <div class = "popup-button">
+        <button class="openPopup"></button>
+        <span class="tooltip-text">Tìm Vị Trí</span>
     </div>
     <div id="map-overlay"></div>
         <script>
@@ -268,7 +271,8 @@
             <button onclick="getweatherbylatlon(Number(document.getElementById('latitude1').value),Number(document.getElementById('longitude1').value))"><b>Tìm</b></button><br>
             <small>-hoặc-</small><br>
             <b>Tên Thành Phố:</b><br> <input type="text" id="cityname" placeholder="Hãy Điền Vào Tên Thành Phố">
-            <button onclick="getweatherbycity(String(document.getElementById('cityname').value))"><b>Tìm</b></button><br>
+            <button onclick="getweatherbycity(String(document.getElementById('cityname').value))"><b>Tìm</b></button><br><br>
+            <button onclick="window.location.href='https://chevevic.github.io/support/1support.html';">Trợ giúp</button>
         </p>
         <h2>Thông Tin Về Địa Điểm:</h2>
         <div id="ways-container"></div>

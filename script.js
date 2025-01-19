@@ -344,6 +344,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     const button = document.querySelector('.openPopup');
     const tooltip = document.querySelector('.tooltip-text');
+    const button1 = document.querySelector('.teleport');
+    const tooltip1 = document.querySelector('.tooltip-text1');
+
+    button1.addEventListener('mouseenter', () => {
+        tooltip1.style.visibility = 'visible';
+        tooltip1.style.opacity = '1';
+        });
+    
+        button1.addEventListener('mouseleave', () => {
+        tooltip1.style.visibility = 'hidden';
+        tooltip1.style.opacity = '0';
+        });
 
     button.addEventListener('mouseenter', () => {
     tooltip.style.visibility = 'visible';
@@ -361,6 +373,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     document.querySelectorAll('.popup-button button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+    document.querySelectorAll('.current button').forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
         });

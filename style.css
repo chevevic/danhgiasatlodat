@@ -39,7 +39,7 @@ body {
 }
 .map-switch {
     position: absolute;
-    top: 10px;
+    bottom: 10px;
     right: 10px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
@@ -79,21 +79,15 @@ body {
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
-#openPopup {
-    background-image: url('1search.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
 .popup {
     position: fixed;
     bottom: -100%; /* Trượt từ dưới */
     left: 0;
     width: 100vw;
     height: 40vh;
-    background-color: rgb(190, 245, 190); /* Nền mờ */
+    background-color: transparent; /* Nền mờ */
     display: none;
-    justify-content: left;
+    justify-content: center;
     align-items: flex-end;
     z-index: 1000; /* Đảm bảo nằm trên cùng */
     transition: bottom 0.3s ease-in-out;
@@ -103,9 +97,55 @@ body {
     background: #adf1b6;
     width: 100%; /* Hạn chế chiều cao của nội dung */
     max-height: 40vh;
-    border-radius: 10px 10px 10px 10px; /* Bo góc trên */
+    border-radius: 16px 16px 0 0; /* Bo góc trên */
     overflow-y: auto; /* Bật cuộn nội dung */
     padding: 20px;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
     text-align: left;
 }
+.popup-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000; /* Đảm bảo nằm trên map */
+    background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
+    padding: 6.5px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
+}
+
+.popup-button button {
+    padding: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 16px;
+    border: none;
+    pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
+}
+.openPopup {
+    background-image: url('1search.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.tooltip-text {
+    visibility: hidden;
+    width: 100px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px 10px;
+    position: absolute;
+    right: 0%; /* Adjust to position above the button */
+    transform: translateX(-50%);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .popup-button:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }

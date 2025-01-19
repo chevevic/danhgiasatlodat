@@ -40,6 +40,8 @@
         <button class="openPopup"></button>
         <span class="tooltip-text">Tìm Vị Trí</span>
     </div>
+    <span id = "latitude2"></span>
+    <span id = "longitude2"></span>
     <div id="map-overlay"></div>
         <script>
             const map = L.map('Map').setView([0,0], 10);
@@ -95,6 +97,8 @@
                 const lon = position.coords.longitude;
                 document.getElementById("latitude").textContent = lat;
                 document.getElementById("longitude").textContent = lon;
+                document.getElementById("latitude2").value = lat;
+                document.getElementById("longitude2").value = lon;
                 const marker = L.marker([ lat,lon ]).addTo(map);
                 marker.setLatLng([lat,lon]);
                 const weatherData = await getweather(lat, lon);
@@ -257,6 +261,10 @@
         </script>
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </div>
+    <div class = "current">
+        <button class="teleport" onclick="map.setView([Number(document.getElementById('latitude2').value), Number(document.getElementById('longitude2').value)], 13)"></button>
+        <span class="tooltip-text1">Vị Trí Hiện Tại</span>
     </div>
     <div class="popup">
         <div id = "popupContent">

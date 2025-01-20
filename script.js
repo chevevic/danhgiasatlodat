@@ -318,6 +318,37 @@ document.querySelectorAll('.map-switch button').forEach(button => {
         e.stopPropagation();
     });
 });
+var locations = [
+    { coords: [22.3045, 103.7732], iconUrl: '1warning.png', radius: 35000, note: 'Dãy Hoàng Liên Sơn' },
+    { coords: [22.6162, 104.8339], iconUrl: '1warning.png', radius: 20000, note: 'Núi Tây Côn Lĩnh' },
+    { coords: [17.3362, 106.4781], iconUrl: '1warning.png', radius: 15000, note: 'Dãy Trường Sơn' },
+    { coords: [21.1921, 106.8970], iconUrl: '1warning.png', radius: 22000, note: 'Núi Ngọc Linh' },
+    { coords: [15.0996, 108.1683], iconUrl: '1warning.png', radius: 30000, note: 'Dãy núi Đông Triều' },
+    { coords: [21.0753, 105.3851], iconUrl: '1warning.png', radius: 5000, note: 'Núi Ba Vì' },
+    { coords: [16.1579, 107.8473], iconUrl: '1warning.png', radius: 15000, note: 'Núi Bạch Mã' },
+    { coords: [11.3821, 106.1702], iconUrl: '1warning.png', radius: 3000, note: 'Núi Bà Đen' },
+    { coords: [12.3634, 108.3087], iconUrl: '1warning.png', radius: 10000, note: 'Dãy núi Chư Yang Sin' },
+    { coords: [23.2500, 105.3890], iconUrl: '1warning.png', radius: 15000, note: 'Cao nguyên Đồng Văn' },
+    { coords: [11.8578, 108.4084], iconUrl: '1warning.png', radius: 7000, note: 'Núi Lang Biang' },
+    { coords: [17.5753, 106.1355], iconUrl: '1warning.png', radius: 25000, note: 'Vườn quốc gia Phong Nha-Kẽ Bàng' }
+];
+
+locations.forEach(function(location) {
+    var customIcon = L.icon({
+        iconUrl: location.iconUrl,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+    });
+
+    L.marker(location.coords, { icon: customIcon }).addTo(map)
+        .bindPopup(location.note + '<br><b>Địa Hình Phức Tạp<b>');
+        L.circle(location.coords, {
+            color: 'light-red',
+            fillColor: 'red',
+            fillOpacity: 0.2,
+            radius: location.radius
+        }).addTo(map);
+});
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

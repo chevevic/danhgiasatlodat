@@ -1,4 +1,3 @@
-document.cookie = "name=value; SameSite=Strict; Secure; Path=/";
 async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
@@ -304,7 +303,7 @@ function getDates(timestamp = Date.now()) {
 }
 if ('serviceWorker' in navigator) {  
     window.addEventListener('load', () => {  
-        navigator.serviceWorker.register('/danhgiasatlodat/service-worker.js')  
+        navigator.serviceWorker.register('/service-worker.js')  
             .then((registration) => {  
                 console.log('Service Worker registered with scope:', registration.scope);  
             })  
@@ -319,18 +318,18 @@ document.querySelectorAll('.map-switch button').forEach(button => {
     });
 });
 var locations = [
-    { coords: [22.3045, 103.7732], iconUrl: '1warning.png', radius: 35000, note: 'Dãy Hoàng Liên Sơn' },
-    { coords: [22.6162, 104.8339], iconUrl: '1warning.png', radius: 20000, note: 'Núi Tây Côn Lĩnh' },
-    { coords: [17.3362, 106.4781], iconUrl: '1warning.png', radius: 15000, note: 'Dãy Trường Sơn' },
-    { coords: [21.1921, 106.8970], iconUrl: '1warning.png', radius: 22000, note: 'Núi Ngọc Linh' },
-    { coords: [15.0996, 108.1683], iconUrl: '1warning.png', radius: 30000, note: 'Dãy núi Đông Triều' },
-    { coords: [21.0753, 105.3851], iconUrl: '1warning.png', radius: 5000, note: 'Núi Ba Vì' },
-    { coords: [16.1579, 107.8473], iconUrl: '1warning.png', radius: 15000, note: 'Núi Bạch Mã' },
-    { coords: [11.3821, 106.1702], iconUrl: '1warning.png', radius: 3000, note: 'Núi Bà Đen' },
-    { coords: [12.3634, 108.3087], iconUrl: '1warning.png', radius: 10000, note: 'Dãy núi Chư Yang Sin' },
-    { coords: [23.2500, 105.3890], iconUrl: '1warning.png', radius: 15000, note: 'Cao nguyên Đồng Văn' },
-    { coords: [11.8578, 108.4084], iconUrl: '1warning.png', radius: 7000, note: 'Núi Lang Biang' },
-    { coords: [17.5753, 106.1355], iconUrl: '1warning.png', radius: 25000, note: 'Vườn quốc gia Phong Nha-Kẽ Bàng' }
+    { coords: [22.3045, 103.7732], iconUrl: 'pictures/1warning.png', radius: 35000, note: 'Dãy Hoàng Liên Sơn' },
+    { coords: [22.6162, 104.8339], iconUrl: 'pictures/1warning.png', radius: 20000, note: 'Núi Tây Côn Lĩnh' },
+    { coords: [17.3362, 106.4781], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Dãy Trường Sơn' },
+    { coords: [21.1921, 106.8970], iconUrl: 'pictures/1warning.png', radius: 22000, note: 'Núi Ngọc Linh' },
+    { coords: [15.0996, 108.1683], iconUrl: 'pictures/1warning.png', radius: 30000, note: 'Dãy núi Đông Triều' },
+    { coords: [21.0753, 105.3851], iconUrl: 'pictures/1warning.png', radius: 5000, note: 'Núi Ba Vì' },
+    { coords: [16.1579, 107.8473], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Núi Bạch Mã' },
+    { coords: [11.3821, 106.1702], iconUrl: 'pictures/1warning.png', radius: 3000, note: 'Núi Bà Đen' },
+    { coords: [12.3634, 108.3087], iconUrl: 'pictures/1warning.png', radius: 10000, note: 'Dãy núi Chư Yang Sin' },
+    { coords: [23.2500, 105.3890], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Cao nguyên Đồng Văn' },
+    { coords: [11.8578, 108.4084], iconUrl: 'pictures/1warning.png', radius: 7000, note: 'Núi Lang Biang' },
+    { coords: [17.5753, 106.1355], iconUrl: 'pictures/1warning.png', radius: 25000, note: 'Vườn quốc gia Phong Nha-Kẽ Bàng' }
 ];
 
 locations.forEach(function(location) {
@@ -413,3 +412,39 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
         });
     });
+    document.addEventListener('DOMContentLoaded', function () {
+        const risk = fetch('RiskPlaces.geojson')
+            .then(response => response.json())
+            .then(data => {
+                const geojsonLayer = L.geoJSON(data, {
+                    style: function (feature) {
+                        const mean = feature.properties.weight;
+                        var fillColor = 'purple';
+                        if (mean <= 0.06) {
+                            fillColor = 'transparent';
+                        } else if (mean <= 0.1) {
+                            fillColor = 'lightgreen';
+                        } else if (mean <= 0.16) {
+                            fillColor = 'yellow';
+                        } else if (mean <= 0.24) {
+                            fillColor = 'orange';
+                        } else if (mean <= 0.36) {
+                            fillColor = 'red';
+                        }
+                        return {
+                            color: "black",
+                            fillColor: fillColor,
+                            weight: 0.2,
+                            opacity: 1,
+                            fillOpacity: 0.6
+                        };
+                    }
+                }).addTo(map);
+                // Vô hiệu hóa click trên button bên trong risklayer
+                document.querySelectorAll('.map-content button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                });
+            });
+    }); 

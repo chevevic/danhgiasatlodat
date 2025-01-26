@@ -39,7 +39,7 @@ body {
 }
 .map-switch {
     position: absolute;
-    bottom: 15px;
+    bottom: 10px;
     right: 10px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
@@ -60,21 +60,21 @@ body {
 }
 
 #googleMapButton {
-    background-image: url('1road.png');
+    background-image: url('pictures/1road.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
 
 #esriTopoButton {
-    background-image: url('1mountain.png');
+    background-image: url('pictures/1mountain.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
 }
 
 #esriImageryLayer {
-    background-image: url('1globe.png');
+    background-image: url('pictures/1globe.png');
     background-size: contain; /* Đảm bảo hình ảnh không bị kéo dãn */
     background-repeat: no-repeat; /* Hình ảnh không lặp lại */
     background-position: center;
@@ -125,7 +125,7 @@ body {
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
 .openPopup {
-    background-image: url('1search.png');
+    background-image: url('pictures/1search.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -171,7 +171,7 @@ body {
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
    .teleport {
-    background-image: url('1location.png');
+    background-image: url('pictures/1location.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -190,10 +190,36 @@ body {
     z-index: 1;
     opacity: 0;
     transition: opacity 0.3s;
-  }
+}
   #latitude2 {
     visibility: hidden;
-  }
+}
   #longitude2 {
     visibility: hidden;
-  }
+}
+.map-content {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    z-index: 1000; /* Đảm bảo nằm trên map */
+    background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
+    padding: 6.5px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
+}
+.map-content button {
+    padding: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 16px;
+    border: none;
+    pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
+}
+#e-s {
+    background-image: url('pictures/1location.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}

@@ -412,39 +412,133 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
         });
     });
-    document.addEventListener('DOMContentLoaded', function () {
-        const risk = fetch('RiskPlaces.geojson')
-            .then(response => response.json())
-            .then(data => {
-                const geojsonLayer = L.geoJSON(data, {
-                    style: function (feature) {
-                        const mean = feature.properties.weight;
-                        var fillColor = 'purple';
-                        if (mean <= 0.06) {
-                            fillColor = 'transparent';
-                        } else if (mean <= 0.1) {
-                            fillColor = 'lightgreen';
-                        } else if (mean <= 0.16) {
-                            fillColor = 'yellow';
-                        } else if (mean <= 0.24) {
-                            fillColor = 'orange';
-                        } else if (mean <= 0.36) {
-                            fillColor = 'red';
-                        }
-                        return {
-                            color: "black",
-                            fillColor: fillColor,
-                            weight: 0.2,
-                            opacity: 1,
-                            fillOpacity: 0.6
-                        };
+    document.querySelectorAll('.map-content button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài
+            toggleVectorGrids(); // Bật/tắt các lớp vectorGrid
+        });
+    });
+    
+    const geojsonUrl = 'HeatMap/RiskPlaces.geojson'; // URL hoặc đường dẫn tới tệp GEOJSON
+    const geojsonUrl2 = 'HeatMap/RiskPlaces2.geojson'; // URL hoặc đường dẫn tới tệp GEOJSON
+    
+    let vectorGrid1, vectorGrid2; // Lưu tham chiếu hai lớp
+    let currentZoom = 0; // Lưu mức zoom hiện tại
+    let vectorGridsVisible = true; // Trạng thái bật/tắt các lớp vectorGrid
+    let zoomendEnabled = true; // Kiểm soát sự kiện zoomend
+    
+    function createVectorGrid(geojsonUrl, callback) {
+        fetch(geojsonUrl)
+            .then((response) => response.json())
+            .then((geojsonData) => {
+                // Tiền xử lý GEOJSON: Thêm thuộc tính màu dựa trên giá trị weight
+                geojsonData.features.forEach((feature) => {
+                    const weight = feature.properties.weight;
+                    let fillColor = "purple";
+                    if (weight <= 0.06) {
+                        fillColor = "transparent";
+                    } else if (weight <= 0.1) {
+                        fillColor = "lightgreen";
+                    } else if (weight <= 0.16) {
+                        fillColor = "yellow";
+                    } else if (weight <= 0.24) {
+                        fillColor = "orange";
+                    } else if (weight <= 0.36) {
+                        fillColor = "red";
                     }
-                }).addTo(map);
-                // Vô hiệu hóa click trên button bên trong risklayer
-                document.querySelectorAll('.map-content button').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                    });
+                    feature.properties.fillColor = fillColor;
                 });
+    
+                // Tạo VectorGrid
+                const vectorGrid = L.vectorGrid.slicer(geojsonData, {
+                    vectorTileLayerStyles: {
+                        sliced: function (properties) {
+                            return {
+                                color: "black",
+                                fill: true,
+                                fillColor: properties.fillColor,
+                                weight: 0.2,
+                                opacity: 1,
+                                fillOpacity: 0.6
+                            };
+                        }
+                    },
+                    interactive: true
+                });
+    
+                // Xử lý sự kiện click
+                vectorGrid.on('click', function (e) {
+                    const props = e.layer.properties;
+                    alert(`Bạn đã click vào vùng có weight: ${props.weight}`);
+                });
+    
+                callback(vectorGrid);
+            })
+            .catch((error) => {
+                console.error('Không thể tải GEOJSON:', error);
             });
-    }); 
+    }
+    
+    // Tải cả hai lớp
+    createVectorGrid(geojsonUrl, (layer) => {
+        vectorGrid1 = layer;
+        map.addLayer(vectorGrid1); // Thêm lớp vectorGrid1 ban đầu
+    });
+    
+    createVectorGrid(geojsonUrl2, (layer) => {
+        vectorGrid2 = layer;
+    });
+    
+    // Lắng nghe sự kiện zoomend
+    map.on('zoomend', function () {
+        if (!zoomendEnabled) return; // Bỏ qua sự kiện nếu zoomend bị vô hiệu hóa
+    
+        currentZoom = map.getZoom();
+        console.log("Cấp độ zoom:", currentZoom);
+    
+        if (currentZoom <= 10) {
+            if (vectorGrid2 && !map.hasLayer(vectorGrid2)) {
+                map.addLayer(vectorGrid2);
+            }
+            if (vectorGrid1 && map.hasLayer(vectorGrid1)) {
+                map.removeLayer(vectorGrid1);
+            }
+        } else {
+            if (vectorGrid1 && !map.hasLayer(vectorGrid1)) {
+                map.addLayer(vectorGrid1);
+            }
+            if (vectorGrid2 && map.hasLayer(vectorGrid2)) {
+                map.removeLayer(vectorGrid2);
+            }
+        }
+    });
+    
+    // Hàm bật/tắt tất cả vectorGrid
+    function toggleVectorGrids() {
+        zoomendEnabled = !zoomendEnabled; // Đổi trạng thái zoomend
+    
+        if (vectorGridsVisible) {
+            // Tắt tất cả các lớp vectorGrid
+            if (vectorGrid1 && map.hasLayer(vectorGrid1)) {
+                map.removeLayer(vectorGrid1);
+            }
+            if (vectorGrid2 && map.hasLayer(vectorGrid2)) {
+                map.removeLayer(vectorGrid2);
+            }
+        } else {
+            // Bật lại các lớp vectorGrid theo mức zoom hiện tại
+            if (currentZoom <= 10) {
+                if (vectorGrid2 && !map.hasLayer(vectorGrid2)) {
+                    map.addLayer(vectorGrid2);
+                }
+            } else {
+                if (vectorGrid1 && !map.hasLayer(vectorGrid1)) {
+                    map.addLayer(vectorGrid1);
+                }
+            }
+        }    
+    
+        vectorGridsVisible = !vectorGridsVisible; // Đổi trạng thái hiển thị của các lớp vector grid
+        console.log(`Vector grids are now ${vectorGridsVisible ? 'visible' : 'hidden'}`);
+        console.log(`Zoomend is now ${zoomendEnabled ? 'enabled' : 'disabled'}`);
+    }

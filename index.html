@@ -125,17 +125,17 @@
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
-                const soil = weatherData.soiltype.wrb_class_name;
+                const soil = weatherData.soiltype.properties.most_probable_soil_type;
                 const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
                 const Density = weatherData.Density;
+                const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
-                const b = getrainFactor(rain);
-                const c = getwindFactor(wind);
-                const d = getsoilFactor(soil);
-                const e = getseismicFactor(seismic);
-                const g = getsoilmoistureFactor(humid);
-                const hazard = calculatehazard(a,b,c,d,e,g);
+                const b = getelevationFactor(elevation);
+                const c = getsoilFactor(soil);
+                const d = getrainFactor(rain);
+                const e = getwindFactor(wind);
+                const hazard = calculatehazard(a,b,c,d,e);
                 const weatherContent = `
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
                     ${address3}, ${address4}<br>
@@ -143,19 +143,20 @@
                     <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
-                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
-                    <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>Độ dốc:</b> `+ slope + `°<br>
+                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ ` %<br>
+                    <b>Tốc độ gió:</b> `+ wind + ` km/h<br>
+                    <b>Độ dốc:</b> `+ slope + ` °<br>
                     <b>Loại đất:</b> `+ soil + `<br>
-                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast.toFixed(1)+`mm<br>
+                    <b>Độ cao:</b> `+elevation+` m<br>
+                    <b>Lượng mưa:</b> `+ rainfall + ` mm/h<br>
+                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast.toFixed(1)+` mm<br>
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>`
-                if (hazard >= 70) {
+                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ ((hazard-1)/(2.81)*100).toFixed(2) + ` %<br>`
+                if (hazard >= 2.898) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
-                } else if (hazard >=55 && hazard <70) {
+                } else if (hazard >=2.456 && hazard <2.898) {
                     marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
                 } else {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
@@ -221,37 +222,38 @@
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed *3.6);
-                const soil = weatherData.soiltype.wrb_class_name;
+                const soil = weatherData.soiltype.properties.most_probable_soil_type;
                 const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
                 const Density = weatherData.Density;
+                const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
-                const b = getrainFactor(rain);
-                const c = getwindFactor(wind);
-                const d = getsoilFactor(soil);
-                const e = getseismicFactor(seismic);
-                const g = getsoilmoistureFactor(humid);
-                const hazard = calculatehazard(a,b,c,d,e,g);
+                const b = getelevationFactor(elevation);
+                const c = getsoilFactor(soil);
+                const d = getrainFactor(rain);
+                const e = getwindFactor(wind);
+                const hazard = calculatehazard(a,b,c,d,e);
                 const weatherContent = `
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
                     ${address3}, ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}</br>
-                    <b><span class ="latlon">Vị Trí:</span></b> ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
                     <b>Tốc độ gió:</b> `+ wind + `km/h<br>
                     <b>Độ dốc:</b> `+ slope + `°<br>
                     <b>Loại đất:</b> `+ soil + `<br>
+                    <b>Độ cao:</b> `+elevation+`m<br>
                     <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
                     <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast.toFixed(1)+`mm<br>
                     <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
                     <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tần: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ hazard + `%<br>`
-                if (hazard >= 70) {
+                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
+                    <b><span class = "danger">NGUY CƠ:</span></b> `+ (((hazard-1)/(2.81))*100).toFixed(2) + `%<br>`
+                if (hazard >= 2.898) {
                     marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
-                } else if (hazard >=55 && hazard <70) {
+                } else if (hazard >=2.456 && hazard <2.898) {
                     marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
                 } else {
                     marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();

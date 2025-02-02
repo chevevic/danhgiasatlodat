@@ -1,14 +1,18 @@
 async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
-    const api_url11 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat - 0.0004}&longitude=${lon - 0.0004}`;
-    const api_url2 =`https://rest.isric.org/soilgrids/v2.0/classification/query?lon=${lon}&lat=${lat}&number_classes=12`
+    const api_url11 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
+    const api_url2 = "https://api.openepi.io/soil/type?" + new URLSearchParams({
+        lon: lon,
+        lat: lat,
+        top_k: '12'
+      })
     const response = await fetch(api_url);
     const json = await response.json();
     console.log(json);
     const enddate = getDates(json.dt).currentDate;
     const startdate = getDates(json.dt).twoDaysAgo;
-    const api_url12 = `https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${lat + 0.0004}&longitude=${lon + 0.0004}&start_date=${startdate}&end_date=${enddate}&daily=precipitation_sum&timezone=Asia%2FBangkok`
+    const api_url12 = `https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${lat + 0.0008}&longitude=${lon + 0.0008}&start_date=${startdate}&end_date=${enddate}&daily=precipitation_sum&timezone=Asia%2FBangkok`
     const response12 = await fetch(api_url12);
     const hourly = await response12.json();
     console.log(hourly);
@@ -16,7 +20,7 @@ async function getweather(lat,lon) {
     const elevationData1 = await elevation11.json();
     const elevation1 = elevationData1.elevation[0];
     const elevation2 = hourly.elevation;
-    const distance = getDistance(lat-0.0004, lon-0.0004, lat + 0.0004, lon + 0.0004); 
+    const distance = getDistance(lat, lon, lat + 0.0008, lon + 0.0008); 
     const slope = Math.atan((Math.abs(elevation2 - elevation1)) / distance)*(180 / Math.PI);
     console.log(`Slope: ${slope} °`);
     const response2 = await fetch(api_url2);
@@ -49,7 +53,6 @@ async function getweather(lat,lon) {
   node["power"](around:500, ${lat}, ${lon});
 );
 out body;`);
-
     landuse = await response3.json();
     const ways = landuse.elements.filter(item => item.type === 'way');
     const nodes = landuse.elements.filter(item => item.type === 'node');
@@ -59,7 +62,6 @@ out body;`);
     const nodeWithMinId = nodes.reduce((minNode, currentNode) => {
         return currentNode.id < minNode.id ? currentNode : minNode;
     }, nodes[0]);
-    
     const container = document.getElementById("ways-container");
     container.innerHTML = '';
     const tagsContainer = document.createElement("div");
@@ -123,7 +125,8 @@ out body;`);
         Density,
         Impact,
         moist,
-        locationdata
+        locationdata,
+        elevationData1
     };
     } catch (error) {
         console.error("An error occurred:", error);
@@ -186,12 +189,15 @@ function getHumanData(city) {
          return;
     }
  };}
-function calculateLandslideRisk(hazard, exposure, vulnerability) {
-    if (hazard < 0 || exposure < 0 || vulnerability < 0) {
-        return "Giá trị không hợp lệ. Tất cả các tham số phải lớn hơn hoặc bằng 0.";
-    }
-    let risk = hazard * exposure * vulnerability;
-    return `Rủi ro sạt lở đất: ${risk}`;
+function calculatehazard(slope,rain,soil,elevation,wind) {
+    hazard = ((slope*0.17 + elevation*0.36 + soil*0.055 + rain*0.36 + wind*0.055 )).toFixed(3);
+    return hazard
+}
+function getelevationFactor(elevation) {
+    if (elevation < 500) return 1;
+    if (elevation >= 500 && elevation < 1000) return 2;
+    if (elevation >= 1000 && elevation < 1500) return 3;
+    return 4;
 }
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000;
@@ -206,39 +212,38 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
     return R * c;
 }
-function calculatehazard(slope,rain,wind,soil,seismic,humid) {
-    hazard = (((0.4 * slope) + (0.28 * rain) + (0.06 * soil) + (0.15 * humid) + (0.11 * wind) + (0.04 * seismic)) * 100).toFixed(0);
-    return hazard
-}
 function getslopeFactor(slope) {
-    return (slope / (40));
+    if (slope < 8 ) return 1;
+    if (slope >= 8 && slope < 15) return 2;
+    if (slope >= 15 && slope < 20) return 3;
+    if (slope >= 20 && slope < 25) return 4;
+    if (slope >= 25 && slope < 30) return 5;
+    return 5;
 }
 function getrainFactor(rainfall) {
-    if (rainfall < 9 ) return 0;
-    if (rainfall >= 9 && rainfall < 14) return 0.025;
-    if (rainfall >= 14 && rainfall < 20) return 0.2;
-    if (rainfall >= 20 && rainfall < 27) return 0.4;
-    if (rainfall >= 27 && rainfall < 35) return 0.6;
-    if (rainfall >= 35 && rainfall < 42) return 0.8;
-    if (rainfall >= 42 && rainfall < 50) return 0.9;
-    return 1.0;
+    if (rainfall < 9 ) return 1;
+    if (rainfall >= 9 && rainfall < 14) return 1;
+    if (rainfall >= 14 && rainfall < 20) return 2;
+    if (rainfall >= 20 && rainfall < 27) return 2;
+    if (rainfall >= 27 && rainfall < 35) return 3;
+    if (rainfall >= 35 && rainfall < 42) return 3;
+    if (rainfall >= 42 && rainfall < 50) return 4;
+    return 4;
 }
 function getsoilFactor(soil) {
-    if (soil === "arenosols" || soil === "histosols") return 1.0;
-    if (soil === "Vertisols" || soil === "Gleysols") return 0.75;
-    if (soil === "Cambisols" || soil === "Acrisols") return 0.6;
-    if (soil === "Fluvisols" || soil === "Andosols" || soil === "phaeozems" ) return 0.4;
-    if (soil === "Luvisols" || soil === "Ferralsols" )  return 0.2;
-    return 0;
+    if (soil === "Fluvisols" || soil === "Gleysols") return 1;
+    if (soil === "Histosols" || soil === "Andosols" || soil === "Arenosols" ) return 2;
+    if (soil === "Luvisols" || soil === "Ferralsols" || soil ==="Acrisols" || soil ==="vertisols" || soil ==="Lixisols" )  return 3;
+    return 3;
 }
 function getwindFactor(wind) {
-    if (wind <= 6) return 0;
-    if (wind > 6 && wind < 10) return 0.025;
-    if (wind >= 10 && wind < 16) return 0.1;
-    if (wind >= 16 && wind < 22) return 0.4;
-    if (wind >= 22 && wind <= 30) return 0.6;
-    if (wind > 30 && wind <=42) return 0.8;
-    return 1.0;
+    if (wind <= 6) return 1;
+    if (wind > 6 && wind < 10) return 1;
+    if (wind >= 10 && wind < 16) return 2;
+    if (wind >= 16 && wind < 22) return 3;
+    if (wind >= 22 && wind <= 30) return 4;
+    if (wind > 30 && wind <=42) return 5;
+    return 6;
 }
 function getsoilmoistureFactor(humid) {
 if (humid > 25) return ((humid - 25)/(75));
@@ -414,131 +419,136 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     document.querySelectorAll('.map-content button').forEach(button => {
         button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài
-            toggleVectorGrids(); // Bật/tắt các lớp vectorGrid
+            e.stopPropagation();
+            toggleVectorGrids(); 
         });
     });
+    const geojsonFiles = {
+        risk1: 'HeatMap1/RiskPlaces1.geojson',
+        risk2: 'HeatMap1/RiskPlaces2.geojson',
+        noRain1: 'HeatMap/NoRain1.geojson',
+        noRain2: 'HeatMap/NoRain2.geojson'
+    };
     
-    const geojsonUrl = 'HeatMap/RiskPlaces.geojson'; // URL hoặc đường dẫn tới tệp GEOJSON
-    const geojsonUrl2 = 'HeatMap/RiskPlaces2.geojson'; // URL hoặc đường dẫn tới tệp GEOJSON
+    let vectorGrids = {};
+    let geojsonDataCache = {};
+    let currentZoom = 0;
+    let vectorGridsVisible = false; // Ban đầu NoRain hiển thị
+    let toggleLocked = false; // Ngăn zoomend tự động bật lại lớp đã bị ẩn
     
-    let vectorGrid1, vectorGrid2; // Lưu tham chiếu hai lớp
-    let currentZoom = 0; // Lưu mức zoom hiện tại
-    let vectorGridsVisible = true; // Trạng thái bật/tắt các lớp vectorGrid
-    let zoomendEnabled = true; // Kiểm soát sự kiện zoomend
+    // Xác định màu dựa trên trọng số
+    function getFillColor(weight) {
+        if (weight <= 1.372) return "transparent";
+        if (weight <= 2.014) return "green";
+        if (weight <= 2.456) return "yellow";
+        if (weight <= 2.898) return "orange";
+        if (weight <= 3.34) return "red";
+        return "purple";
+    }
     
-    function createVectorGrid(geojsonUrl, callback) {
+    // Tạo vector grid từ GeoJSON
+    function createVectorGrid(geojsonUrl, key, callback) {
         fetch(geojsonUrl)
-            .then((response) => response.json())
-            .then((geojsonData) => {
-                // Tiền xử lý GEOJSON: Thêm thuộc tính màu dựa trên giá trị weight
-                geojsonData.features.forEach((feature) => {
-                    const weight = feature.properties.weight;
-                    let fillColor = "purple";
-                    if (weight <= 0.06) {
-                        fillColor = "transparent";
-                    } else if (weight <= 0.1) {
-                        fillColor = "lightgreen";
-                    } else if (weight <= 0.16) {
-                        fillColor = "yellow";
-                    } else if (weight <= 0.24) {
-                        fillColor = "orange";
-                    } else if (weight <= 0.36) {
-                        fillColor = "red";
-                    }
-                    feature.properties.fillColor = fillColor;
+            .then(response => response.json())
+            .then(geojsonData => {
+                geojsonData.features.forEach(feature => {
+                    feature.properties.fillColor = getFillColor(feature.properties.weight);
                 });
     
-                // Tạo VectorGrid
-                const vectorGrid = L.vectorGrid.slicer(geojsonData, {
+                vectorGrids[key] = L.vectorGrid.slicer(geojsonData, {
                     vectorTileLayerStyles: {
-                        sliced: function (properties) {
-                            return {
-                                color: "black",
-                                fill: true,
-                                fillColor: properties.fillColor,
-                                weight: 0.2,
-                                opacity: 1,
-                                fillOpacity: 0.6
-                            };
-                        }
+                        sliced: properties => ({
+                            color: "black",
+                            fill: true,
+                            fillColor: properties.fillColor,
+                            weight: 0.2,
+                            opacity: 1,
+                            fillOpacity: 0.3
+                        })
                     },
                     interactive: true
                 });
     
-                // Xử lý sự kiện click
-                vectorGrid.on('click', function (e) {
-                    const props = e.layer.properties;
-                    alert(`Bạn đã click vào vùng có weight: ${props.weight}`);
-                });
-    
-                callback(vectorGrid);
+                callback(vectorGrids[key]);
             })
-            .catch((error) => {
-                console.error('Không thể tải GEOJSON:', error);
-            });
+            .catch(error => console.error('Không thể tải GEOJSON:', error));
     }
     
-    // Tải cả hai lớp
-    createVectorGrid(geojsonUrl, (layer) => {
-        vectorGrid1 = layer;
-        map.addLayer(vectorGrid1); // Thêm lớp vectorGrid1 ban đầu
+    // Tạo vector grids
+    let loadedLayers = 0;
+    Object.entries(geojsonFiles).forEach(([key, url]) => {
+        createVectorGrid(url, key, layer => {
+            vectorGrids[key] = layer;
+            loadedLayers++;
+    
+            // Khi tất cả layers đã load -> Khởi tạo hiển thị
+            if (loadedLayers === Object.keys(geojsonFiles).length) {
+                initializeLayers();
+            }
+        });
     });
     
-    createVectorGrid(geojsonUrl2, (layer) => {
-        vectorGrid2 = layer;
-    });
+    // 🔹 **Khởi tạo ban đầu: Chỉ hiển thị NoRain**
+    function initializeLayers() {
+        currentZoom = map.getZoom();
+        console.log("Khởi tạo: Cấp độ zoom:", currentZoom);
     
-    // Lắng nghe sự kiện zoomend
+        // Hiển thị NoRain, Ẩn Risk
+        toggleLayer('noRain1', true);
+        toggleLayer('noRain2', true);
+        toggleLayer('risk1', false);
+        toggleLayer('risk2', false);
+    }
+    
+    // 🔹 **Hàm bật/tắt lớp**
+    function toggleLayer(key, show) {
+        if (!vectorGrids[key]) return;
+        if (show) {
+            map.addLayer(vectorGrids[key]);
+        } else {
+            map.removeLayer(vectorGrids[key]);
+        }
+    }
+    
+    // 🔹 **Sự kiện zoom (chỉ hoạt động khi toggle không bị khóa)**
     map.on('zoomend', function () {
-        if (!zoomendEnabled) return; // Bỏ qua sự kiện nếu zoomend bị vô hiệu hóa
+        if (toggleLocked) return;
     
         currentZoom = map.getZoom();
         console.log("Cấp độ zoom:", currentZoom);
     
-        if (currentZoom <= 10) {
-            if (vectorGrid2 && !map.hasLayer(vectorGrid2)) {
-                map.addLayer(vectorGrid2);
-            }
-            if (vectorGrid1 && map.hasLayer(vectorGrid1)) {
-                map.removeLayer(vectorGrid1);
-            }
+        if (vectorGridsVisible) {
+            toggleLayer('risk1', currentZoom > 10);
+            toggleLayer('risk2', currentZoom <= 10);
         } else {
-            if (vectorGrid1 && !map.hasLayer(vectorGrid1)) {
-                map.addLayer(vectorGrid1);
-            }
-            if (vectorGrid2 && map.hasLayer(vectorGrid2)) {
-                map.removeLayer(vectorGrid2);
-            }
+            toggleLayer('noRain1', currentZoom > 10);
+            toggleLayer('noRain2', currentZoom <= 10);
         }
     });
     
-    // Hàm bật/tắt tất cả vectorGrid
+    // 🔹 **Nút toggle giữa Risk & NoRain**
     function toggleVectorGrids() {
-        zoomendEnabled = !zoomendEnabled; // Đổi trạng thái zoomend
+        vectorGridsVisible = !vectorGridsVisible;
+        toggleLocked = true; // Ngăn zoom tự động kích hoạt lại layer
     
         if (vectorGridsVisible) {
-            // Tắt tất cả các lớp vectorGrid
-            if (vectorGrid1 && map.hasLayer(vectorGrid1)) {
-                map.removeLayer(vectorGrid1);
-            }
-            if (vectorGrid2 && map.hasLayer(vectorGrid2)) {
-                map.removeLayer(vectorGrid2);
-            }
+            // Hiển thị Risk, Ẩn NoRain
+            toggleLayer('risk1', currentZoom > 10);
+            toggleLayer('risk2', currentZoom <= 10);
+            toggleLayer('noRain1', false);
+            toggleLayer('noRain2', false);
         } else {
-            // Bật lại các lớp vectorGrid theo mức zoom hiện tại
-            if (currentZoom <= 10) {
-                if (vectorGrid2 && !map.hasLayer(vectorGrid2)) {
-                    map.addLayer(vectorGrid2);
-                }
-            } else {
-                if (vectorGrid1 && !map.hasLayer(vectorGrid1)) {
-                    map.addLayer(vectorGrid1);
-                }
-            }
-        }    
+            // Hiển thị NoRain, Ẩn Risk
+            toggleLayer('noRain1', currentZoom > 10);
+            toggleLayer('noRain2', currentZoom <= 10);
+            toggleLayer('risk1', false);
+            toggleLayer('risk2', false);
+        }
     
-        vectorGridsVisible = !vectorGridsVisible; // Đổi trạng thái hiển thị của các lớp vector grid
-        console.log(`Vector grids are now ${vectorGridsVisible ? 'visible' : 'hidden'}`);
-        console.log(`Zoomend is now ${zoomendEnabled ? 'enabled' : 'disabled'}`);
+        console.log(`Vector grids are now ${vectorGridsVisible ? 'Risk' : 'NoRain'}`);
+    
+        // Đặt lại toggleLock sau 1 giây để tránh lỗi khi zoom ngay sau khi toggle
+        setTimeout(() => {
+            toggleLocked = false;
+        }, 1000);
     }

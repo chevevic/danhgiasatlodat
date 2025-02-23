@@ -14,18 +14,90 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
-    <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js"></script>
+    <script src="https://unpkg.com/@turf/turf@7.2.0/turf.min.js"></script>
+    <script src="https://unpkg.com/leaflet.glify@3.2.0/dist/glify-browser.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rbush"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMGyirNVaekBf8HY1fJnmazt0tJZ3PLWA",
+            authDomain: "toa-do-sat-lo.firebaseapp.com",
+            databaseURL: "https://toa-do-sat-lo-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "toa-do-sat-lo",
+            storageBucket: "toa-do-sat-lo.firebasestorage.app",
+            messagingSenderId: "434074192273",
+            appId: "1:434074192273:web:c7bd3482349776c39d7230",
+            measurementId: "G-G7ECLG6C5Q"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        async function fetchFirestoreData() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "dates"));
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
+                console.log("Dữ liệu từ Firestore:", data);
+                const getFormattedDate = (timestampMs) => new Date(timestampMs).toISOString().split('T')[0];
+                const getPastDates = (days) => {
+                    const dates = [];
+                    const today = new Date();
+                    for (let i = 0; i < days; i++) {
+                        const pastDate = new Date(today);
+                        pastDate.setDate(today.getDate() - i);
+                        dates.push(pastDate.toISOString().split('T')[0]);
+                    }
+                    return dates;
+                };
+                const Days = getPastDates(5);
+                console.log("Danh sách 5 ngày gần nhất:", Days);
+                const uniqueCoordinates = [];
+                const coordinatesSet = new Set();
+                let hasValidData = false;
+                data.forEach(item => {
+                    if (Days.includes(item.id) && Array.isArray(item.locations)) {
+                        hasValidData = true;
+                        item.locations.forEach(location => {
+                            if (location.lat !== undefined && location.lon !== undefined && location.rainfall !== undefined) {
+                                const coords = `${location.lat},${location.lon},${location.rainfall}`;
+                                coordinatesSet.add(coords);
+                            } else {
+                                console.warn(`⚠️ Dữ liệu không hợp lệ tại ${item.id}:`, location);
+                            }
+                        });
+                    }
+                });
+                if (!hasValidData) {
+                    console.log("Không có dữ liệu hợp lệ trong 5 ngày gần nhất.");
+                    return;
+                }
+                uniqueCoordinates.push(...Array.from(coordinatesSet).map(coord => {
+                    const [lat, lon, rain] = coord.split(',');
+                    return { lat: parseFloat(lat), lon: parseFloat(lon), rain: parseFloat(rain) };
+                }));
+                console.log("Dữ liệu đã xử lý:", uniqueCoordinates);
+                window.uniqueCoordinates = uniqueCoordinates;
+                document.dispatchEvent(new Event('firestoreDataReady'));
+    
+            } catch (error) {
+                console.error("Lỗi khi lấy dữ liệu từ Firestore:", error);
+            }
+        }
+        fetchFirestoreData();
+    </script>
+    
     <style>
         #Map {
-            position: absolute; /* Hoặc fixed nếu muốn giữ nguyên khi cuộn */
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw; /* Chiều rộng chiếm toàn bộ cửa sổ */
-            height: 100vh; /* Chiều cao chiếm toàn bộ cửa sổ */
+            width: 100vw;
+            height: 100vh;
             margin: 0;
             padding: 0;
-            z-index: 0; /* Đảm bảo không bị che bởi các phần tử khác */
+            z-index: 0;
         }
          </style>
     <title>Sạt Lở Đất</title>
@@ -81,6 +153,144 @@
                     map.removeLayer(esriTopoLayer);
                     map.addLayer(esriImageryLayer);
             }});
+            document.addEventListener('firestoreDataReady', function() {
+            fetch('HEATMAPS/HeatMap/NoRain1.geojson')
+    .then(response => response.json())
+    .then(data => {
+        if (!data || !data.features) {
+            console.error("GeoJSON không hợp lệ!");
+            return;
+        }
+        function isPointInPolygon(point, polygon) {
+            const turfPoint = turf.point([point.lon, point.lat]);
+            if (!Array.isArray(polygon) || polygon.length === 0) {
+                console.error("⚠️ Polygon không hợp lệ:", polygon);
+                return false;
+            }
+            if (polygon[0][0] !== polygon[polygon.length - 1][0] || 
+                polygon[0][1] !== polygon[polygon.length - 1][1]) {
+                console.warn("⚠️ Polygon chưa đóng, tự động đóng lại.");
+                polygon.push(polygon[0]); 
+            }
+            const turfPolygon = turf.polygon([polygon]);
+            return turf.booleanPointInPolygon(turfPoint, turfPolygon);
+        }
+console.log(window.uniqueCoordinates);
+const gridSize = 0.1;
+const grid = new Map();
+function getGridKey(lon, lat) {
+    const x = Math.floor(lon / gridSize);
+    const y = Math.floor(lat / gridSize);
+    return `${x},${y}`;
+}
+
+// Nạp dữ liệu vào lưới
+data.features.forEach(feature => {
+    if (!feature.geometry || !feature.geometry.coordinates) return;
+    const bbox = turf.bbox(feature);
+    
+    const minKey = getGridKey(bbox[0], bbox[1]);
+    const maxKey = getGridKey(bbox[2], bbox[3]);
+
+    for (let x = parseInt(minKey.split(',')[0]); x <= parseInt(maxKey.split(',')[0]); x++) {
+        for (let y = parseInt(minKey.split(',')[1]); y <= parseInt(maxKey.split(',')[1]); y++) {
+            const key = `${x},${y}`;
+            if (!grid.has(key)) grid.set(key, []);
+            grid.get(key).push(feature);
+        }
+    }
+});
+
+// Xử lý tọa độ
+window.uniqueCoordinates.forEach(coord => {
+    if (!coord || typeof coord.lon !== 'number' || typeof coord.lat !== 'number') {
+        console.warn("⚠️ Cảnh báo: Tọa độ không hợp lệ", coord);
+        return;
+    }
+
+    const point = turf.point([coord.lon, coord.lat]);
+    const key = getGridKey(coord.lon, coord.lat);
+    let possiblePolygons = grid.get(key) || [];
+
+    // Lọc các polygon trong phạm vi 10km trước khi kiểm tra isPointInPolygon()
+    possiblePolygons = possiblePolygons.filter(feature => {
+        const center = turf.centerOfMass(feature);
+        return turf.distance(point, center, { units: "kilometers" }) <= 10;
+    });
+
+    let polygonsContainingPoint = [];
+
+    possiblePolygons.forEach(feature => {
+        if (feature.properties.processed) return; // Đã cộng trước đó, bỏ qua
+
+        let isInside = false;
+        if (feature.geometry.type === "Polygon" && isPointInPolygon(coord, feature.geometry.coordinates[0])) {
+            isInside = true;
+        } else if (feature.geometry.type === "MultiPolygon") {
+            feature.geometry.coordinates.forEach(polygon => {
+                if (isPointInPolygon(coord, polygon[0])) {
+                    isInside = true;
+                }
+            });
+        }
+        if (isInside) {
+            polygonsContainingPoint.push(feature);
+        }
+    });
+    polygonsContainingPoint.forEach(mainPolygon => {
+        mainPolygon.properties.weight = (mainPolygon.properties.weight || 0) + 0.72;
+        mainPolygon.properties.processed = true;
+
+        possiblePolygons.forEach(neighborPolygon => {
+            if (mainPolygon === neighborPolygon || neighborPolygon.properties.processed) return;
+
+            const dist = turf.distance(
+                turf.centerOfMass(mainPolygon),
+                turf.centerOfMass(neighborPolygon),
+                { units: "kilometers" }
+            );
+
+            if (dist < 10) {
+                neighborPolygon.properties.weight = (neighborPolygon.properties.weight || 0) + 0.6;
+                neighborPolygon.properties.processed = true;
+            }
+        });
+    });
+});
+        const invalidFeatures = data.features.filter(f => !f.geometry || !f.geometry.coordinates);
+        console.log("Feature bị lỗi:", invalidFeatures);
+        const validFeatures = data.features.filter(f => f.geometry && f.geometry.coordinates);
+        console.log(`Tổng số feature: ${data.features.length}, hợp lệ: ${validFeatures.length}`);
+        if (invalidFeatures.length > 0) {
+            invalidFeatures.forEach((f, index) => {
+                console.log(`Feature #${index}:`, JSON.stringify(f, null, 2));
+            });
+        }
+        function getColor(feature) {
+            const weight = feature.properties.weight;
+            if (weight <= 1.372) return {r:0, g:0, b:0, a:0};
+            if (weight <= 2.012 && weight > 1.372) return {r:0, g:255, b:255};
+            if (weight <= 2.456 && weight > 2.012) return {r:0, g:255, b:0};
+            if (weight <= 2.898 && weight > 2.456) return {r:255, g:255, b:0};
+            if (weight <= 3.34 && weight > 2.898) return {r:255, g:0, b:0};
+            return {r:128, g:0, b:128};                  
+        }
+        L.glify.shapes({
+            map: map,
+            data: { type: "FeatureCollection", features: validFeatures },
+            color:function (index, feature) {
+                return getColor(feature);
+            },
+            size:5,
+            opacity:0.5,
+            click: function (e, feature) {
+                console.log('Đây là khu vực: '+ feature.properties.NAME_2);
+            }
+        });
+    }
+    )
+    .catch(error => console.error('Lỗi tải GeoJSON:', error));
+})
     const HoangSa = L.circle([16.66513746152365,112.7300262451172], {
         color: 'green',
         fillColor: 'green',
@@ -106,54 +316,52 @@
                 document.getElementById("longitude2").value = lon;
                 const marker = L.marker([ lat,lon ]).addTo(map);
                 marker.setLatLng([lat,lon]);
+                marker.bindPopup(`<b>Đang Tải Dữ Liệu...</b><br><div class="loading-spinner"></div>`).openPopup();
                 const weatherData = await getweather(lat, lon);
                 if (weatherData === 0) {
                     marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
-                const address1 = weatherData.locationdata.address.road;
-                const address2 = weatherData.locationdata.address.city;
-                const address3 = weatherData.locationdata.address.state;
-                const address4 = weatherData.locationdata.address.country;
-                const address5 = weatherData.locationdata.address.suburb;
+                const address1 = weatherData.locationdata.address.road ? weatherData.locationdata.address.road + ', ' : '';
+                const address2 = weatherData.locationdata.address.city ? weatherData.locationdata.address.city + ', ' : '';
+                const address3 = weatherData.locationdata.address.state ? weatherData.locationdata.address.state + ', ' : '';
+                const address4 = weatherData.locationdata.address.country ? weatherData.locationdata.address.country + '.' : '';
+                const address5 = weatherData.locationdata.address.suburb ? weatherData.locationdata.address.suburb + '.' : '';
                 const timestamp = weatherData.json.dt;
                 const date = new Date(timestamp * 1000);
-                const humid = (weatherData.moist)*100;
+                const humid = (weatherData.moist) * 100;
                 const slope = (weatherData.slope).toFixed(2);
-                let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const rain = (weatherData.hourly.daily.precipitation_sum[0])+(weatherData.hourly.daily.precipitation_sum[1]);
-                const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
+                let rainfall = weatherData.json.rain ? weatherData.json.rain['1h'] : 0;
+                const rainforecast = weatherData.hourly.daily.precipitation_sum[0] + weatherData.hourly.daily.precipitation_sum[1] + weatherData.hourly.daily.precipitation_sum[2];
                 const seismic = weatherData.Impact.toFixed(3);
-                const wind = Math.round(weatherData.json.wind.speed *3.6);
+                const wind = Math.round(weatherData.json.wind.speed * 3.6);
                 const soil = weatherData.soiltype.properties.most_probable_soil_type;
-                const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
-                const Density = weatherData.Density;
+                const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không xác định";
                 const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
                 const b = getelevationFactor(elevation);
                 const c = getsoilFactor(soil);
-                const d = getrainFactor(rain);
+                const d = getrainFactor(rainforecast);
                 const e = getwindFactor(wind);
-                const hazard = calculatehazard(a,b,c,d,e);
+                const hazard = calculatehazard(a, b, c, d, e);
                 const weatherContent = `
-                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
-                    ${address3}, ${address4}<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
+                    ${address3} ${address4}<br>
+                    <b>Thời điểm:</b> ${date.toLocaleString()}<br>
                     <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
-                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ ` %<br>
-                    <b>Tốc độ gió:</b> `+ wind + ` km/h<br>
-                    <b>Độ dốc:</b> `+ slope + ` °<br>
-                    <b>Loại đất:</b> `+ soil + `<br>
-                    <b>Độ cao:</b> `+elevation+` m<br>
-                    <b>Lượng mưa:</b> `+ rainfall + ` mm/h<br>
-                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast.toFixed(1)+` mm<br>
-                    <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
-                    <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ ((hazard-1)/(2.81)*100).toFixed(2) + ` %<br>`
+                    <b>Độ ẩm đất:</b> ${Math.round(humid)}%<br>
+                    <b>Tốc độ gió:</b> ${wind} km/h<br>
+                    <b>Độ dốc:</b> ${slope}°<br>
+                    <b>Loại đất:</b> ${soil}<br>
+                    <b>Độ cao:</b> ${elevation}m<br>
+                    <b>Lượng mưa:</b> ${rainfall} mm/h<br>
+                    <b>Tổng lượng mưa (3 ngày qua):</b> ${rainforecast.toFixed(1)} mm<br>
+                    <b>Độ ảnh hưởng động đất:</b> ${seismic}<br>
+                    <b>Mật độ dân số (cả Thành Phố):</b> ${population} người<br>
+                    <b><span class="danger">NGUY CƠ:</span></b> ${(((hazard - 1) / 2.81) * 100).toFixed(2)}%<br>`;
                 if (hazard >= 2.898) {
                     marker.bindPopup(`<b><span class="highlight">Vị Trí Của Bạn</span></b><br><b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
                 } else if (hazard >=2.456 && hazard <2.898) {
@@ -192,73 +400,76 @@
             catch (error) {
                 console.error('Lỗi khi lấy dữ liệu:', error.message)
             };
-            async function getweatherbylatlon(lat,lon) {
-                document.getElementById("ways-container").innerHTML = '';
-                if (marker1) {
-                    map.removeLayer(marker1);
-                    map.removeLayer(circle1);
-                }
-                map.setView([lat,lon],13)
-                marker1.setLatLng([lat,lon]);
-                marker1.addTo(map);
-                circle1.setLatLng([lat,lon])
-                circle1.addTo(map);
+            async function getweatherbylatlon(lat, lon) {
+            document.getElementById("ways-container").innerHTML = '';
+            if (marker1) {
+                map.removeLayer(marker1);
+                map.removeLayer(circle1);
+            }
+            marker1.setLatLng([lat, lon]);
+            marker1.addTo(map);
+            circle1.setLatLng([lat, lon]);
+            circle1.addTo(map);
+            marker1.bindPopup(`<b>Đang Tải Dữ Liệu...</b><br><div class="loading-spinner"></div>`).openPopup();
+            try {
                 const weatherData = await getweather(lat, lon);
                 if (weatherData === 0) {
-                    marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
+                    marker1.setPopupContent(`<b>Lỗi khi lấy thông tin</b>`);
                     return;
                 }
-                const address1 = weatherData.locationdata.address.road;
-                const address2 = weatherData.locationdata.address.city;
-                const address3 = weatherData.locationdata.address.state;
-                const address4 = weatherData.locationdata.address.country;
-                const address5 = weatherData.locationdata.address.suburb;
+                const address1 = weatherData.locationdata.address.road ? weatherData.locationdata.address.road + ', ' : '';
+                const address2 = weatherData.locationdata.address.city ? weatherData.locationdata.address.city + ', ' : '';
+                const address3 = weatherData.locationdata.address.state ? weatherData.locationdata.address.state + ', ' : '';
+                const address4 = weatherData.locationdata.address.country ? weatherData.locationdata.address.country + '.' : '';
+                const address5 = weatherData.locationdata.address.suburb ? weatherData.locationdata.address.suburb + '.' : '';
                 const timestamp = weatherData.json.dt;
                 const date = new Date(timestamp * 1000);
-                const humid = (weatherData.moist)*100;
+                const humid = (weatherData.moist) * 100;
                 const slope = (weatherData.slope).toFixed(2);
-                let rainfall = (weatherData.json.rain) ? weatherData.json.rain['1h'] : 0;
-                const rain = (weatherData.hourly.daily.precipitation_sum[0])+(weatherData.hourly.daily.precipitation_sum[1]);
-                const rainforecast = weatherData.hourly.daily.precipitation_sum[1]+weatherData.hourly.daily.precipitation_sum[2]+weatherData.hourly.daily.precipitation_sum[0];
+                let rainfall = weatherData.json.rain ? weatherData.json.rain['1h'] : 0;
+                const rainforecast = weatherData.hourly.daily.precipitation_sum[0] + weatherData.hourly.daily.precipitation_sum[1] + weatherData.hourly.daily.precipitation_sum[2];
                 const seismic = weatherData.Impact.toFixed(3);
-                const wind = Math.round(weatherData.json.wind.speed *3.6);
+                const wind = Math.round(weatherData.json.wind.speed * 3.6);
                 const soil = weatherData.soiltype.properties.most_probable_soil_type;
-                const city = (weatherData.json.name) ? (weatherData.json.name.toLowerCase()) : "không";
-                const Density = weatherData.Density;
+                const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không xác định";
                 const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
                 const a = getslopeFactor(slope);
                 const b = getelevationFactor(elevation);
                 const c = getsoilFactor(soil);
-                const d = getrainFactor(rain);
+                const d = getrainFactor(rainforecast);
                 const e = getwindFactor(wind);
-                const hazard = calculatehazard(a,b,c,d,e);
+                const hazard = calculatehazard(a, b, c, d, e);
                 const weatherContent = `
-                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1}, ${address2}, ${address5}.<br>
-                    ${address3}, ${address4}<br>
-                    <b>Thời điểm:</b> ${date.toLocaleString()}</br>
+                    <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
+                    ${address3} ${address4}<br>
+                    <b>Thời điểm:</b> ${date.toLocaleString()}<br>
                     <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
-                    <b>Độ ẩm đất:</b> `+ Math.round(humid)+ `%<br>
-                    <b>Tốc độ gió:</b> `+ wind + `km/h<br>
-                    <b>Độ dốc:</b> `+ slope + `°<br>
-                    <b>Loại đất:</b> `+ soil + `<br>
-                    <b>Độ cao:</b> `+elevation+`m<br>
-                    <b>Lượng mưa:</b> `+ rainfall + `mm/h<br>
-                    <b>Tổng lượng mưa (3 ngày qua):</b>`+rainforecast.toFixed(1)+`mm<br>
-                    <b>Độ ảnh hưởng động đất</b> ` + seismic +`<br>
-                    <b>Mật độ dân số:</b> `+ population + ` người<br>
-                    <b>Mật độ cơ sở hạ tầng: </b>` + Density.toFixed(1) + ` toà/km^2<br>
-                    <b><span class = "danger">NGUY CƠ:</span></b> `+ (((hazard-1)/(2.81))*100).toFixed(2) + `%<br>`
+                    <b>Độ ẩm đất:</b> ${Math.round(humid)}%<br>
+                    <b>Tốc độ gió:</b> ${wind} km/h<br>
+                    <b>Độ dốc:</b> ${slope}°<br>
+                    <b>Loại đất:</b> ${soil}<br>
+                    <b>Độ cao:</b> ${elevation}m<br>
+                    <b>Lượng mưa:</b> ${rainfall} mm/h<br>
+                    <b>Tổng lượng mưa (3 ngày qua):</b> ${rainforecast.toFixed(1)} mm<br>
+                    <b>Độ ảnh hưởng động đất:</b> ${seismic}<br>
+                    <b>Mật độ dân số (cả Thành Phố):</b> ${population} người<br>
+                    <b><span class="danger">NGUY CƠ:</span></b> ${(((hazard - 1) / 2.81) * 100).toFixed(2)}%<br>`;
                 if (hazard >= 2.898) {
-                    marker1.bindPopup(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>`+weatherContent).openPopup();
-                } else if (hazard >=2.456 && hazard <2.898) {
-                    marker1.bindPopup(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>`+weatherContent).openPopup();
+                    marker1.setPopupContent(`<b><span class="danger">VÙNG NGUY HIỂM!!!</span></b><br>${weatherContent}`).openPopup();
+                } else if (hazard >= 2.456 && hazard < 2.898) {
+                    marker1.setPopupContent(`<b><span class="might">Vùng Có Nguy Cơ.</span></b><br>${weatherContent}`).openPopup();
                 } else {
-                    marker1.bindPopup(`<b><span class="safe">Vùng An Toàn.</span></b><br>`+weatherContent).openPopup();
+                    marker1.setPopupContent(`<b><span class="safe">Vùng An Toàn.</span></b><br>${weatherContent}`).openPopup();
                 }
+
+            } catch (error) {
+                console.error("Lỗi khi lấy dữ liệu:", error);
+                marker1.setPopupContent(`<b>Lỗi khi lấy thông tin</b>`);
             }
+        }
             async function getweatherbycity(ten) {
                 const data = await getlatlonbycity(ten);
                 const lat = data.lat;

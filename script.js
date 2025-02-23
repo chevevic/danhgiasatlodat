@@ -30,68 +30,6 @@ async function getweather(lat,lon) {
     const response6 = await fetch(api_url6);
     const locationdata = await response6.json();
     console.log(locationdata);
-    const response3 = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];
-(
-  way["landuse"](around:500, ${lat}, ${lon});
-  relation["landuse"](around:500, ${lat}, ${lon});
-  node["landuse"](around:500, ${lat}, ${lon});
-
-  way["natural"](around:500, ${lat}, ${lon});
-  relation["natural"](around:500, ${lat}, ${lon});
-  node["natural"](around:500, ${lat}, ${lon});
-
-  way["highway"](around:500, ${lat}, ${lon});
-  relation["highway"](around:500, ${lat}, ${lon});
-  node["highway"](around:500, ${lat}, ${lon});
-
-  way["building"](around:500, ${lat}, ${lon});
-  relation["building"](around:500, ${lat}, ${lon});
-  node["building"](around:500, ${lat}, ${lon});
-
-  way["power"](around:500, ${lat}, ${lon});
-  relation["power"](around:500, ${lat}, ${lon});
-  node["power"](around:500, ${lat}, ${lon});
-);
-out body;`);
-    landuse = await response3.json();
-    const ways = landuse.elements.filter(item => item.type === 'way');
-    const nodes = landuse.elements.filter(item => item.type === 'node');
-    const wayWithMinId = ways.reduce((minWay, currentWay) => {
-        return currentWay.id < minWay.id ? currentWay : minWay;
-    }, ways[0]);
-    const nodeWithMinId = nodes.reduce((minNode, currentNode) => {
-        return currentNode.id < minNode.id ? currentNode : minNode;
-    }, nodes[0]);
-    const container = document.getElementById("ways-container");
-    container.innerHTML = '';
-    const tagsContainer = document.createElement("div");
-    if (wayWithMinId && wayWithMinId.tags) {
-        for (const [key, value] of Object.entries(wayWithMinId.tags)) {
-            const tagElement = document.createElement("p");
-            tagElement.innerHTML = `<strong>${key}:</strong> ${value}`;
-            tagsContainer.appendChild(tagElement);
-        }
-    } else {
-        const noDataElement = document.createElement("p");
-        noDataElement.innerHTML = '0';
-        tagsContainer.appendChild(noDataElement);
-    }
-    
-    if (nodeWithMinId && nodeWithMinId.tags) {
-        for (const [key, value] of Object.entries(nodeWithMinId.tags)) {
-            const tagElement = document.createElement("p");
-            tagElement.innerHTML = `<strong>${key}:</strong> ${value}`;
-            tagsContainer.appendChild(tagElement);
-        }
-    } else {
-        const noDataElement = document.createElement("p");
-        noDataElement.innerHTML = '0';
-        tagsContainer.appendChild(noDataElement);
-    }
-    container.appendChild(tagsContainer);
-    console.log(landuse)
-    const radius = 500;
-    const Density = calculateDensity(landuse,lat,lon,radius);
     const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson?latitude=${lat}&longitude=${lon}&maxradius=1000`;
     const response4 = await fetch(url);
     const seismicData = await response4.json();
@@ -121,8 +59,6 @@ out body;`);
         hourly,
         slope,
         soiltype,
-        landuse,
-        Density,
         Impact,
         moist,
         locationdata,
@@ -249,28 +185,6 @@ function getsoilmoistureFactor(humid) {
 if (humid > 25) return ((humid - 25)/(75));
 else return ((25 - humid)/(25));
 }
-function calculateDensity(data, lat, lon, radius) {
-    let buildingCount = 0;
-    let highwayCount = 0;
-    let powerCount = 0;
-    let total = 0;
-    data.elements.forEach(element => {
-        const elementLat = element.lat;
-        const elementLon = element.lon;
-        distance = getDistance(lat,lon,elementLat,elementLon);
-        if (distance < radius) {
-            if (element.tags && element.tags.building) buildingCount++;
-            if (element.tags && element.tags.highway) highwayCount++;
-            if (element.tags && element.tags.power) powerCount++;
-    }})
-    const buildingDensity = buildingCount / (Math.PI * radius * radius);
-    const highwayDensity = highwayCount / (Math.PI * radius * radius);
-    const powerDensity = powerCount / (Math.PI * radius * radius);
-
-    total = (buildingDensity + highwayDensity + powerDensity)*1000000;
-
-    return total;
-}
 function getseismicFactor(seismic) {
     if (seismic < 1) return 0;
     if (seismic >= 1 && seismic < 2) return 0.25;
@@ -321,37 +235,6 @@ document.querySelectorAll('.map-switch button').forEach(button => {
     button.addEventListener('click', (e) => {
         e.stopPropagation();
     });
-});
-var locations = [
-    { coords: [22.3045, 103.7732], iconUrl: 'pictures/1warning.png', radius: 35000, note: 'Dãy Hoàng Liên Sơn' },
-    { coords: [22.6162, 104.8339], iconUrl: 'pictures/1warning.png', radius: 20000, note: 'Núi Tây Côn Lĩnh' },
-    { coords: [17.3362, 106.4781], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Dãy Trường Sơn' },
-    { coords: [21.1921, 106.8970], iconUrl: 'pictures/1warning.png', radius: 22000, note: 'Núi Ngọc Linh' },
-    { coords: [15.0996, 108.1683], iconUrl: 'pictures/1warning.png', radius: 30000, note: 'Dãy núi Đông Triều' },
-    { coords: [21.0753, 105.3851], iconUrl: 'pictures/1warning.png', radius: 5000, note: 'Núi Ba Vì' },
-    { coords: [16.1579, 107.8473], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Núi Bạch Mã' },
-    { coords: [11.3821, 106.1702], iconUrl: 'pictures/1warning.png', radius: 3000, note: 'Núi Bà Đen' },
-    { coords: [12.3634, 108.3087], iconUrl: 'pictures/1warning.png', radius: 10000, note: 'Dãy núi Chư Yang Sin' },
-    { coords: [23.2500, 105.3890], iconUrl: 'pictures/1warning.png', radius: 15000, note: 'Cao nguyên Đồng Văn' },
-    { coords: [11.8578, 108.4084], iconUrl: 'pictures/1warning.png', radius: 7000, note: 'Núi Lang Biang' },
-    { coords: [17.5753, 106.1355], iconUrl: 'pictures/1warning.png', radius: 25000, note: 'Vườn quốc gia Phong Nha-Kẽ Bàng' }
-];
-
-locations.forEach(function(location) {
-    var customIcon = L.icon({
-        iconUrl: location.iconUrl,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32]
-    });
-
-    L.marker(location.coords, { icon: customIcon }).addTo(map)
-        .bindPopup(location.note + '<br><b>Địa Hình Phức Tạp<b>');
-        L.circle(location.coords, {
-            color: 'light-red',
-            fillColor: 'red',
-            fillOpacity: 0.2,
-            radius: location.radius
-        }).addTo(map);
 });
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -420,135 +303,5 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.map-content button').forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            toggleVectorGrids(); 
         });
     });
-    const geojsonFiles = {
-        risk1: 'HeatMap1/RiskPlaces1.geojson',
-        risk2: 'HeatMap1/RiskPlaces2.geojson',
-        noRain1: 'HeatMap/NoRain1.geojson',
-        noRain2: 'HeatMap/NoRain2.geojson'
-    };
-    
-    let vectorGrids = {};
-    let geojsonDataCache = {};
-    let currentZoom = 0;
-    let vectorGridsVisible = false; // Ban đầu NoRain hiển thị
-    let toggleLocked = false; // Ngăn zoomend tự động bật lại lớp đã bị ẩn
-    
-    // Xác định màu dựa trên trọng số
-    function getFillColor(weight) {
-        if (weight <= 1.372) return "transparent";
-        if (weight <= 2.014) return "green";
-        if (weight <= 2.456) return "yellow";
-        if (weight <= 2.898) return "orange";
-        if (weight <= 3.34) return "red";
-        return "purple";
-    }
-    
-    // Tạo vector grid từ GeoJSON
-    function createVectorGrid(geojsonUrl, key, callback) {
-        fetch(geojsonUrl)
-            .then(response => response.json())
-            .then(geojsonData => {
-                geojsonData.features.forEach(feature => {
-                    feature.properties.fillColor = getFillColor(feature.properties.weight);
-                });
-    
-                vectorGrids[key] = L.vectorGrid.slicer(geojsonData, {
-                    vectorTileLayerStyles: {
-                        sliced: properties => ({
-                            color: "black",
-                            fill: true,
-                            fillColor: properties.fillColor,
-                            weight: 0.2,
-                            opacity: 1,
-                            fillOpacity: 0.3
-                        })
-                    },
-                    interactive: true
-                });
-    
-                callback(vectorGrids[key]);
-            })
-            .catch(error => console.error('Không thể tải GEOJSON:', error));
-    }
-    
-    // Tạo vector grids
-    let loadedLayers = 0;
-    Object.entries(geojsonFiles).forEach(([key, url]) => {
-        createVectorGrid(url, key, layer => {
-            vectorGrids[key] = layer;
-            loadedLayers++;
-    
-            // Khi tất cả layers đã load -> Khởi tạo hiển thị
-            if (loadedLayers === Object.keys(geojsonFiles).length) {
-                initializeLayers();
-            }
-        });
-    });
-    
-    // 🔹 **Khởi tạo ban đầu: Chỉ hiển thị NoRain**
-    function initializeLayers() {
-        currentZoom = map.getZoom();
-        console.log("Khởi tạo: Cấp độ zoom:", currentZoom);
-    
-        // Hiển thị NoRain, Ẩn Risk
-        toggleLayer('noRain1', true);
-        toggleLayer('noRain2', true);
-        toggleLayer('risk1', false);
-        toggleLayer('risk2', false);
-    }
-    
-    // 🔹 **Hàm bật/tắt lớp**
-    function toggleLayer(key, show) {
-        if (!vectorGrids[key]) return;
-        if (show) {
-            map.addLayer(vectorGrids[key]);
-        } else {
-            map.removeLayer(vectorGrids[key]);
-        }
-    }
-    
-    // 🔹 **Sự kiện zoom (chỉ hoạt động khi toggle không bị khóa)**
-    map.on('zoomend', function () {
-        if (toggleLocked) return;
-    
-        currentZoom = map.getZoom();
-        console.log("Cấp độ zoom:", currentZoom);
-    
-        if (vectorGridsVisible) {
-            toggleLayer('risk1', currentZoom > 10);
-            toggleLayer('risk2', currentZoom <= 10);
-        } else {
-            toggleLayer('noRain1', currentZoom > 10);
-            toggleLayer('noRain2', currentZoom <= 10);
-        }
-    });
-    
-    // 🔹 **Nút toggle giữa Risk & NoRain**
-    function toggleVectorGrids() {
-        vectorGridsVisible = !vectorGridsVisible;
-        toggleLocked = true; // Ngăn zoom tự động kích hoạt lại layer
-    
-        if (vectorGridsVisible) {
-            // Hiển thị Risk, Ẩn NoRain
-            toggleLayer('risk1', currentZoom > 10);
-            toggleLayer('risk2', currentZoom <= 10);
-            toggleLayer('noRain1', false);
-            toggleLayer('noRain2', false);
-        } else {
-            // Hiển thị NoRain, Ẩn Risk
-            toggleLayer('noRain1', currentZoom > 10);
-            toggleLayer('noRain2', currentZoom <= 10);
-            toggleLayer('risk1', false);
-            toggleLayer('risk2', false);
-        }
-    
-        console.log(`Vector grids are now ${vectorGridsVisible ? 'Risk' : 'NoRain'}`);
-    
-        // Đặt lại toggleLock sau 1 giây để tránh lỗi khi zoom ngay sau khi toggle
-        setTimeout(() => {
-            toggleLocked = false;
-        }, 1000);
-    }

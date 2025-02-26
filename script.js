@@ -30,7 +30,7 @@ async function getweather(lat,lon) {
     const response6 = await fetch(api_url6);
     const locationdata = await response6.json();
     console.log(locationdata);
-    const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson?latitude=${lat}&longitude=${lon}&maxradius=1000`;
+    const url = `https://www.seismicportal.eu/fdsnws/event/1/query?format=json&limit=300`;
     const response4 = await fetch(url);
     const seismicData = await response4.json();
     console.log(seismicData);

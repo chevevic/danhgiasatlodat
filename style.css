@@ -39,22 +39,22 @@ body {
 }
 .map-switch {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 20px;
+    right: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
-    padding: 6.5px;
+    padding: 6px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
 }
 
 .map-switch button {
-    padding: 18px;
+    padding: 16px;
     cursor: pointer;
     font-weight: bold;
-    border-radius: 3px;
-    font-size: 16px;
+    border-radius: 5px;
+    font-size: 13px;
     border: none;
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
@@ -105,22 +105,22 @@ body {
 }
 .popup-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 5px;
+    right: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
-    padding: 6.5px;
+    padding: 6px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
 }
 
 .popup-button button {
-    padding: 18px;
+    padding: 16px;
     cursor: pointer;
     font-weight: bold;
     border-radius: 3px;
-    font-size: 16px;
+    font-size: 13px;
     border: none;
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
@@ -151,8 +151,8 @@ body {
   }
   .current {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    bottom: 20px;
+    left: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
     padding: 6.5px;
@@ -160,13 +160,12 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
 }
-
    .current button {
-    padding: 18px;
+    padding: 16px;
     cursor: pointer;
     font-weight: bold;
     border-radius: 3px;
-    font-size: 16px;
+    font-size: 13px;
     border: none;
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
@@ -200,7 +199,7 @@ body {
 .map-content {
     position: absolute;
     top: 50%;
-    right: 10px;
+    right: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
     padding: 6.5px;
@@ -209,11 +208,11 @@ body {
     pointer-events: auto; /* Đảm bảo các sự kiện trên .map-switch được kích hoạt */
 }
 .map-content button {
-    padding: 18px;
+    padding: 16px;
     cursor: pointer;
     font-weight: bold;
     border-radius: 3px;
-    font-size: 16px;
+    font-size: 13px;
     border: none;
     pointer-events: auto; /* Đảm bảo các sự kiện click hoạt động trên button */
 }
@@ -236,4 +235,16 @@ body {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+.custom-tooltip {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.custom-tooltip.fade-in {
+    opacity: 1;
+}
+
+.custom-tooltip.fade-out {
+    opacity: 0;
 }

@@ -262,19 +262,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     const button = document.querySelector('.openPopup');
     const tooltip = document.querySelector('.tooltip-text');
-    const button1 = document.querySelector('.teleport');
-    const tooltip1 = document.querySelector('.tooltip-text1');
-
-    button1.addEventListener('mouseenter', () => {
-        tooltip1.style.visibility = 'visible';
-        tooltip1.style.opacity = '1';
-        });
-    
-        button1.addEventListener('mouseleave', () => {
-        tooltip1.style.visibility = 'hidden';
-        tooltip1.style.opacity = '0';
-        });
-
     button.addEventListener('mouseenter', () => {
     tooltip.style.visibility = 'visible';
     tooltip.style.opacity = '1';

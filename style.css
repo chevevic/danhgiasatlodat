@@ -248,3 +248,8 @@ body {
 .custom-tooltip.fade-out {
     opacity: 0;
 }
+.current, .map-switch {
+    width: auto; 
+    min-width: 20px;
+    display: inline-block;
+}

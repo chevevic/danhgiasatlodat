@@ -51,8 +51,8 @@
                     }
                     return dates;
                 };
-                const Days = getPastDates(2);
-                console.log("Danh sách 2 ngày gần nhất:", Days);
+                const Days = getPastDates(1);
+                console.log("Danh sách 5 ngày gần nhất:", Days);
                 const uniqueCoordinates = [];
                 const coordinatesSet = new Set();
                 let hasValidData = false;
@@ -154,7 +154,7 @@
                     map.addLayer(esriImageryLayer);
             }});
             document.addEventListener('firestoreDataReady', function() {
-            fetch('HEATMAPS/HeatMap/NoRain1.geojson')
+    fetch('HEATMAPS/HeatMap/NoRain1.geojson')
     .then(response => response.json())
     .then(data => {
         if (!data || !data.features) {
@@ -183,8 +183,6 @@ function getGridKey(lon, lat) {
     const y = Math.floor(lat / gridSize);
     return `${x},${y}`;
 }
-
-// Nạp dữ liệu vào lưới
 data.features.forEach(feature => {
     if (!feature.geometry || !feature.geometry.coordinates) return;
     const bbox = turf.bbox(feature);
@@ -200,29 +198,22 @@ data.features.forEach(feature => {
         }
     }
 });
-
-// Xử lý tọa độ
+const tooltip = L.tooltip({ direction: 'top', permanent: true, opacity: 0.7 });
 window.uniqueCoordinates.forEach(coord => {
     if (!coord || typeof coord.lon !== 'number' || typeof coord.lat !== 'number') {
         console.warn("⚠️ Cảnh báo: Tọa độ không hợp lệ", coord);
         return;
     }
-
     const point = turf.point([coord.lon, coord.lat]);
     const key = getGridKey(coord.lon, coord.lat);
     let possiblePolygons = grid.get(key) || [];
-
-    // Lọc các polygon trong phạm vi 10km trước khi kiểm tra isPointInPolygon()
     possiblePolygons = possiblePolygons.filter(feature => {
         const center = turf.centerOfMass(feature);
         return turf.distance(point, center, { units: "kilometers" }) <= 10;
     });
-
     let polygonsContainingPoint = [];
-
     possiblePolygons.forEach(feature => {
-        if (feature.properties.processed) return; // Đã cộng trước đó, bỏ qua
-
+        if (feature.properties.processed) return;
         let isInside = false;
         if (feature.geometry.type === "Polygon" && isPointInPolygon(coord, feature.geometry.coordinates[0])) {
             isInside = true;
@@ -266,6 +257,9 @@ window.uniqueCoordinates.forEach(coord => {
                 console.log(`Feature #${index}:`, JSON.stringify(f, null, 2));
             });
         }
+        function formatName(name) {
+    return name.replace(/([a-z])([A-Z])/g, "$1 $2"); // Thêm dấu cách giữa chữ thường và chữ hoa
+}
         function getColor(feature) {
             const weight = feature.properties.weight;
             if (weight <= 1.372) return {r:0, g:0, b:0, a:0};
@@ -285,7 +279,24 @@ window.uniqueCoordinates.forEach(coord => {
             opacity:0.5,
             click: function (e, feature) {
                 console.log('Đây là khu vực: '+ feature.properties.NAME_2);
-            }
+            },
+            hover: (e, feature) => {
+        if (!feature || !e.latlng) return;
+        let formattedName = formatName(feature.properties.NAME_2);
+        let tooltip = L.tooltip({
+            permanent: false,
+            direction: "top",
+            opacity: 0.8,
+            className: "custom-tooltip fade-in"
+        }).setLatLng(e.latlng)
+          .setContent(formattedName);
+        map.openTooltip(tooltip);
+        setTimeout(() => {
+            tooltip._container?.classList.add("fade-out");
+            setTimeout(() => map.closeTooltip(tooltip), 300);
+        }, 1000);
+    },
+            sensitivity: 10
         });
     }
     )
@@ -349,7 +360,7 @@ window.uniqueCoordinates.forEach(coord => {
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
                     ${address3} ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}<br>
-                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat.toFixed(8)}, ${lon.toFixed(8)}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> ${Math.round(humid)}%<br>
@@ -444,7 +455,7 @@ window.uniqueCoordinates.forEach(coord => {
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
                     ${address3} ${address4}<br>
                     <b>Thời điểm:</b> ${date.toLocaleString()}<br>
-                    <b><span class ="latlon">Vị Trí:</span></b> ${lat}, ${lon}<br>
+                    <b><span class ="latlon">Vị Trí:</span></b> ${lat.toFixed(8)}, ${lon.toFixed(8)}<br>
                     <b>Thời tiết:</b> ${weatherData.json.weather[0].description}<br>
                     <b>Nhiệt độ:</b> ${Math.round(weatherData.json.main.temp - 273.15)}°C<br>
                     <b>Độ ẩm đất:</b> ${Math.round(humid)}%<br>

@@ -119,7 +119,6 @@
     </div>
     <span id = "latitude2"></span>
     <span id = "longitude2"></span>
-    <div id="map-overlay"></div>
         <script>
             const map = L.map('Map').setView([0,0], 10);
             const googleMapLayer = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}', {
@@ -493,7 +492,6 @@ window.uniqueCoordinates.forEach(coord => {
     </div>
     <div class = "current">
         <button class="teleport" onclick="map.setView([Number(document.getElementById('latitude2').value), Number(document.getElementById('longitude2').value)], 13)"></button>
-        <span class="tooltip-text1">Vị Trí Hiện Tại</span>
     </div>
     <div class="popup">
         <div id = "popupContent">

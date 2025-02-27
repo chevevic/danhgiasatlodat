@@ -38,7 +38,7 @@ body {
     font-size: 14px;
 }
 .map-switch {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     right: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
@@ -150,8 +150,8 @@ body {
     opacity: 1;
   }
   .current {
-    position: absolute;
-    bottom: 19.5px;
+    position: fixed;
+    bottom: 20px;
     left: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
@@ -238,3 +238,7 @@ body {
     min-width: 20px;
     display: inline-block;
 }
+#e-s, #googleMapButton, #esriTopoButton, #esriImageryLayer, .teleport, .openPopup {
+    user-select: none;
+    -webkit-user-select: none; 
+  }

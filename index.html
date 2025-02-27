@@ -105,14 +105,6 @@
 </head>
 <body>
     <div id="Map">
-    <div class="map-switch">
-        <button id="googleMapButton"></button>
-        <button id="esriTopoButton"></button>
-        <button id="esriImageryLayer"></button>
-    </div>
-    <div class = "current">
-        <button class="teleport" onclick="map.setView([Number(document.getElementById('latitude2').value), Number(document.getElementById('longitude2').value)], 13)"></button>
-    </div>
     <div class="map-content">
         <button id="e-s"></button>
     </div>
@@ -137,24 +129,6 @@
                 attribution: 'Esri, USGS, NOAA',
                 maxZoom: 16
             });
-            document.getElementById('googleMapButton').addEventListener('click', () => {
-                if (!map.hasLayer(googleMapLayer)) {
-                    map.removeLayer(esriTopoLayer);
-                    map.removeLayer(esriImageryLayer);
-                    map.addLayer(googleMapLayer);
-            }});
-            document.getElementById('esriTopoButton').addEventListener('click', () => {
-                if (!map.hasLayer(esriTopoLayer)) {
-                    map.removeLayer(googleMapLayer);
-                    map.removeLayer(esriImageryLayer);
-                    map.addLayer(esriTopoLayer);
-            }});
-            document.getElementById('esriImageryLayer').addEventListener('click', () => {
-                if (!map.hasLayer(esriImageryLayer)) {
-                    map.removeLayer(googleMapLayer);
-                    map.removeLayer(esriTopoLayer);
-                    map.addLayer(esriImageryLayer);
-            }});
             document.addEventListener('firestoreDataReady', function() {
     fetch('HEATMAPS/HeatMap/NoRain1.geojson')
     .then(response => response.json())
@@ -477,7 +451,6 @@ window.uniqueCoordinates.forEach(coord => {
                 } else {
                     marker1.setPopupContent(`<b><span class="safe">Vùng An Toàn.</span></b><br>${weatherContent}`).openPopup();
                 }
-
             } catch (error) {
                 console.error("Lỗi khi lấy dữ liệu:", error);
                 marker1.setPopupContent(`<b>Lỗi khi lấy thông tin</b>`);
@@ -492,6 +465,34 @@ window.uniqueCoordinates.forEach(coord => {
         </script>
             <script src="script.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </div>
+    <div class="map-switch">
+        <button id="googleMapButton"></button>
+        <button id="esriTopoButton"></button>
+        <button id="esriImageryLayer"></button>
+        <script>
+            document.getElementById('googleMapButton').addEventListener('click', () => {
+                if (!map.hasLayer(googleMapLayer)) {
+                    map.removeLayer(esriTopoLayer);
+                    map.removeLayer(esriImageryLayer);
+                    map.addLayer(googleMapLayer);
+            }});
+            document.getElementById('esriTopoButton').addEventListener('click', () => {
+                if (!map.hasLayer(esriTopoLayer)) {
+                    map.removeLayer(googleMapLayer);
+                    map.removeLayer(esriImageryLayer);
+                    map.addLayer(esriTopoLayer);
+            }});
+            document.getElementById('esriImageryLayer').addEventListener('click', () => {
+                if (!map.hasLayer(esriImageryLayer)) {
+                    map.removeLayer(googleMapLayer);
+                    map.removeLayer(esriTopoLayer);
+                    map.addLayer(esriImageryLayer);
+            }});
+        </script>
+    </div>
+    <div class = "current">
+        <button class="teleport" onclick="map.setView([Number(document.getElementById('latitude2').value), Number(document.getElementById('longitude2').value)], 13)"></button>
     </div>
     <div class="popup">
         <div id = "popupContent">

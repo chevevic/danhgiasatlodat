@@ -39,7 +39,7 @@ body {
 }
 .map-switch {
     position: fixed;
-    bottom: 20px;
+    bottom: 10px;
     right: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
@@ -151,7 +151,7 @@ body {
   }
   .current {
     position: fixed;
-    bottom: 20px;
+    bottom: 10px;
     left: 5px;
     z-index: 1000; /* Đảm bảo nằm trên map */
     background: rgba(255, 255, 255, 0.9); /* Nền trắng mờ để không làm mất hoàn toàn map */
@@ -239,6 +239,6 @@ body {
     display: inline-block;
 }
 #e-s, #googleMapButton, #esriTopoButton, #esriImageryLayer, .teleport, .openPopup {
-    user-select: none;
-    -webkit-user-select: none; 
+    user-select: none; /* Hỗ trợ Chrome, Firefox, Edge */
+    -webkit-user-select: none; /* Hỗ trợ Safari */
   }

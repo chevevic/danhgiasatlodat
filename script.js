@@ -2,11 +2,11 @@ async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
     const api_url11 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
-    const api_url2 = "https://api.openepi.io/soil/type?" + new URLSearchParams({
-        lon: lon,
-        lat: lat,
-        top_k: '12'
-      })
+    const api_url2 =   'https://api.openepi.io/soil/type?' + new URLSearchParams({
+        lon: "9.58",
+        lat: "60.1",
+        top_k: "13"
+      });
     const response = await fetch(api_url);
     const json = await response.json();
     console.log(json);
@@ -222,7 +222,7 @@ function getDates(timestamp = Date.now()) {
 }
 if ('serviceWorker' in navigator) {  
     window.addEventListener('load', () => {  
-        navigator.serviceWorker.register('/danhgiasatlodat/service-worker.js')  
+        navigator.serviceWorker.register('/service-worker.js')  
             .then((registration) => {  
                 console.log('Service Worker registered with scope:', registration.scope);  
             })  

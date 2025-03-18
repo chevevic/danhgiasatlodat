@@ -68,6 +68,9 @@
     <div class="map-content">
         <button id="e-s"></button>
     </div>
+    <div class ="map-explain">
+        <img src="pictures/1explain.PNG" alt="Ảnh hiển thị">
+    </div>
     <div class = "popup-button">
         <button class="openPopup"></button>
         <span class="tooltip-text">Tìm Vị Trí</span>
@@ -164,13 +167,27 @@ window.uniqueCoordinates.forEach(coord => {
             polygonsContainingPoint.push(feature);
         }
     });
-    polygonsContainingPoint.forEach(mainPolygon => {
-        mainPolygon.properties.weight = (mainPolygon.properties.weight || 0) + 0.72;
-        mainPolygon.properties.processed = true;
-
+    console.log("Before processing:", polygonsContainingPoint.map(p => p.properties));
+    const rain = coord.rain;
+        let weight;
+        if (rain <= 27) {
+            weight = 0.72;
+        } else if (rain <= 35) {
+            weight = 0.90;
+        } else if (rain <= 42) {
+            weight = 1.08;
+        } else if (rain <= 50) {
+            weight = 1.44;
+        } else {
+            weight = 0.36;
+        }
+        polygonsContainingPoint.forEach(mainPolygon => {
+        if (!mainPolygon.properties.processed) {
+            mainPolygon.properties.weight = (mainPolygon.properties.weight || 0) + weight;
+            mainPolygon.properties.processed = true;
+        }
         possiblePolygons.forEach(neighborPolygon => {
             if (mainPolygon === neighborPolygon || neighborPolygon.properties.processed) return;
-
             const dist = turf.distance(
                 turf.centerOfMass(mainPolygon),
                 turf.centerOfMass(neighborPolygon),
@@ -178,7 +195,7 @@ window.uniqueCoordinates.forEach(coord => {
             );
 
             if (dist < 10) {
-                neighborPolygon.properties.weight = (neighborPolygon.properties.weight || 0) + 0.48;
+                neighborPolygon.properties.weight = (neighborPolygon.properties.weight || 0) + weight;
                 neighborPolygon.properties.processed = true;
             }
         });
@@ -194,15 +211,15 @@ window.uniqueCoordinates.forEach(coord => {
             });
         }
         function formatName(name) {
-    return name.replace(/([a-z])([A-Z])/g, "$1 $2"); // Thêm dấu cách giữa chữ thường và chữ hoa
+    return name.replace(/([a-z])([A-Z])/g, "$1 $2");
 }
         function getColor(feature) {
             const weight = feature.properties.weight;
-            if (weight <= 1.372) return {r:0, g:0, b:0, a:0};
-            if (weight <= 2.012 && weight > 1.372) return {r:0, g:255, b:255};
-            if (weight <= 2.456 && weight > 2.012) return {r:0, g:255, b:0};
-            if (weight <= 2.898 && weight > 2.456) return {r:255, g:255, b:0};
-            if (weight <= 3.34 && weight > 2.898) return {r:255, g:0, b:0};
+            if (weight <= 1.13) return {r:0, g:0, b:0, a:0};
+            if (weight <= 1.572 && weight > 1.13) return {r:0, g:255, b:255};
+            if (weight <= 2.012 && weight > 1.572) return {r:0, g:255, b:0};
+            if (weight <= 2.456 && weight > 2.012) return {r:255, g:255, b:0};
+            if (weight <= 2.898 && weight > 2.012) return {r:255, g:0, b:0};
             return {r:128, g:0, b:128};                  
         }
         L.glify.shapes({
@@ -321,7 +338,6 @@ window.uniqueCoordinates.forEach(coord => {
                 locationWarning.style.display = "none";
                 })};
 function checkLocationPermission() {
-    const locationWarning = document.getElementById("loading");
     document.dispatchEvent(new Event("customEvent"));
     if (!navigator.geolocation) {
         alert("Trình duyệt của bạn không hỗ trợ định vị.");
@@ -343,9 +359,10 @@ function checkLocationPermission() {
             console.log("Đã có quyền truy cập vị trí.");
             getid();
         }
-        locationWarning.style.display = "none";
     });
 }
+const locationWarning = document.getElementById("loading");
+locationWarning.style.display = "none";
 window.onload = checkLocationPermission;
             const marker1 = L.marker();
             const circle1 = L.circle([0,0], {
@@ -483,7 +500,7 @@ window.onload = checkLocationPermission;
                             }
                             return dates;
                         };
-                        const Days = getPastDates(1);
+                        const Days = getPastDates(2);
                         console.log("Danh sách 2 ngày gần nhất:", Days);
                         const uniqueCoordinates = [];
                         const coordinatesSet = new Set();

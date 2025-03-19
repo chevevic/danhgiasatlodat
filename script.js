@@ -156,6 +156,14 @@ function getslopeFactor(slope) {
     if (slope >= 25 && slope < 30) return 5;
     return 5;
 }
+function getNDVIFactor(NDVI) {
+    if (NDVI >= 0 && NDVI < 0.15) return 1;
+    if (NDVI >= 0.65 && NDVI < 0.9) return 2;
+    if (NDVI >= 0.455 && NDVI < 0.65) return 3;
+    if (NDVI >= 0.3 && NDVI < 0.45) return 4;
+    if (NDVI >= 0.2 && NDVI < 0.3) return 5;
+    return 3;
+}
 function getrainFactor(rainfall) {
     if (rainfall < 9 ) return 1;
     if (rainfall >= 9 && rainfall < 14) return 1;
@@ -291,10 +299,4 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
         });
-    });
-    const imageContainer = document.querySelector('.map-explain');
-    const button = document.querySelector('.map-content button');
-    
-    button.addEventListener('click', () => {
-        imageContainer.classList.toggle('active');
     });

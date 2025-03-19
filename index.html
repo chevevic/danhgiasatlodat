@@ -68,9 +68,6 @@
     <div class="map-content">
         <button id="e-s"></button>
     </div>
-    <div class ="map-explain">
-        <img src="pictures/1explain.PNG" alt="Ảnh hiển thị">
-    </div>
     <div class = "popup-button">
         <button class="openPopup"></button>
         <span class="tooltip-text">Tìm Vị Trí</span>
@@ -287,6 +284,39 @@ window.uniqueCoordinates.forEach(coord => {
                     marker.bindPopup(`Lỗi khi lấy thông tin`).openPopup();
                     return;
                 }
+                const NDVI = await fetch("HEATMAPS/HeatMap/NoRain1.geojson")
+    .then(response => response.json())
+    .then(data => {
+        let MeanNDVI = null;
+        const point = turf.point([lon, lat]);
+
+        try {
+            // Duyệt qua tất cả các features trong GeoJSON
+            data.features.forEach(feature => {
+                const polygon = feature.geometry;
+                if (turf.booleanPointInPolygon(point, polygon)) {
+                    MeanNDVI = feature.properties.meanNDVI; // Gán giá trị meanNDVI khi tìm thấy điểm trong polygon
+                }
+            });
+        } catch (error) {
+            // Nếu có lỗi, bỏ qua và tiếp tục mà không làm gì cả
+            console.error("Lỗi khi xử lý GeoJSON:", error);
+        }
+
+        // Kiểm tra nếu không tìm thấy MeanNDVI
+        if (MeanNDVI === null) {
+            return 0; // Trả về giá trị mặc định nếu không tìm thấy
+        }
+
+        return Number(MeanNDVI); // Trả về giá trị meanNDVI dưới dạng số
+    })
+    .catch(error => {
+        // Bỏ qua lỗi và trả về giá trị mặc định
+        console.error("Lỗi khi fetch hoặc xử lý GeoJSON:", error);
+    });
+
+console.log(NDVI); // Hiển thị kết quả NDVI
+
                 const address1 = weatherData.locationdata.address.road ? weatherData.locationdata.address.road + ', ' : '';
                 const address2 = weatherData.locationdata.address.city ? weatherData.locationdata.address.city + ', ' : '';
                 const address3 = weatherData.locationdata.address.state ? weatherData.locationdata.address.state + ', ' : '';
@@ -309,7 +339,8 @@ window.uniqueCoordinates.forEach(coord => {
                 const c = getsoilFactor(soil);
                 const d = getrainFactor(rainforecast);
                 const e = getwindFactor(wind);
-                const hazard = calculatehazard(a, b, c, d, e);
+                const g = getNDVIFactor(NDVI);
+                const hazard = calculatehazard(a, b, c, d, g);
                 const weatherContent = `
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
                     ${address3} ${address4}<br>
@@ -322,6 +353,7 @@ window.uniqueCoordinates.forEach(coord => {
                     <b>Độ dốc:</b> ${slope}°<br>
                     <b>Loại đất:</b> ${soil}<br>
                     <b>Độ cao:</b> ${elevation}m<br>
+                    <b>Độ phủ thực vật:</b> ${(NDVI*100).toFixed(2)}%</br>
                     <b>Lượng mưa:</b> ${rainfall} mm/h<br>
                     <b>Tổng lượng mưa (3 ngày qua):</b> ${rainforecast.toFixed(1)} mm<br>
                     <b>Độ ảnh hưởng động đất:</b> ${seismic}<br>
@@ -403,6 +435,39 @@ window.onload = checkLocationPermission;
                     marker1.setPopupContent(`<b>Lỗi khi lấy thông tin</b>`);
                     return;
                 }
+                const NDVI = await fetch("HEATMAPS/HeatMap/NoRain1.geojson")
+    .then(response => response.json())
+    .then(data => {
+        let MeanNDVI = null;
+        const point = turf.point([lon, lat]);
+
+        try {
+            // Duyệt qua tất cả các features trong GeoJSON
+            data.features.forEach(feature => {
+                const polygon = feature.geometry;
+                if (turf.booleanPointInPolygon(point, polygon)) {
+                    MeanNDVI = feature.properties.meanNDVI; // Gán giá trị meanNDVI khi tìm thấy điểm trong polygon
+                }
+            });
+        } catch (error) {
+            // Nếu có lỗi, bỏ qua và tiếp tục mà không làm gì cả
+            console.error("Lỗi khi xử lý GeoJSON:", error);
+        }
+
+        // Kiểm tra nếu không tìm thấy MeanNDVI
+        if (MeanNDVI === null) {
+            return 0; // Trả về giá trị mặc định nếu không tìm thấy
+        }
+
+        return Number(MeanNDVI); // Trả về giá trị meanNDVI dưới dạng số
+    })
+    .catch(error => {
+        // Bỏ qua lỗi và trả về giá trị mặc định
+        console.error("Lỗi khi fetch hoặc xử lý GeoJSON:", error);
+    });
+
+console.log(NDVI); // Hiển thị kết quả NDVI
+
                 const address1 = weatherData.locationdata.address.road ? weatherData.locationdata.address.road + ', ' : '';
                 const address2 = weatherData.locationdata.address.city ? weatherData.locationdata.address.city + ', ' : '';
                 const address3 = weatherData.locationdata.address.state ? weatherData.locationdata.address.state + ', ' : '';
@@ -425,7 +490,8 @@ window.onload = checkLocationPermission;
                 const c = getsoilFactor(soil);
                 const d = getrainFactor(rainforecast);
                 const e = getwindFactor(wind);
-                const hazard = calculatehazard(a, b, c, d, e);
+                const g = getNDVIFactor(NDVI);
+                const hazard = calculatehazard(a, b, c, d, g);
                 const weatherContent = `
                     <b><span class="location">Địa Chỉ:</span></b><br> ${address1} ${address2} ${address5}<br>
                     ${address3} ${address4}<br>
@@ -438,6 +504,7 @@ window.onload = checkLocationPermission;
                     <b>Độ dốc:</b> ${slope}°<br>
                     <b>Loại đất:</b> ${soil}<br>
                     <b>Độ cao:</b> ${elevation}m<br>
+                    <b>Độ phủ thực vật:</b> ${(NDVI*100).toFixed(2)}%</br>
                     <b>Lượng mưa:</b> ${rainfall} mm/h<br>
                     <b>Tổng lượng mưa (3 ngày qua):</b> ${rainforecast.toFixed(1)} mm<br>
                     <b>Độ ảnh hưởng động đất:</b> ${seismic}<br>
@@ -560,5 +627,7 @@ window.onload = checkLocationPermission;
         <div id="ways-container"></div>
         </div>
     </div>
+</body>
+</html>
 </body>
 </html>

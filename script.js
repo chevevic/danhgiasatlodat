@@ -300,3 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
         });
     });
+    const imageContainer = document.querySelector('.map-explain');
+     const button = document.querySelector('.map-content button');
+     
+     button.addEventListener('click', () => {
+         imageContainer.classList.toggle('active');
+     });

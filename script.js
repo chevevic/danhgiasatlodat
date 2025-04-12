@@ -2,11 +2,7 @@ async function getweather(lat,lon) {
     try {
     const api_url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=5ecd55a45b022c71aede9450aaffb59d`;
     const api_url11 =  `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
-    const api_url2 =   'https://api.openepi.io/soil/type?' + new URLSearchParams({
-        lon: "9.58",
-        lat: "60.1",
-        top_k: "13"
-      });
+    const api_url2 =   `https://rest.isric.org/soilgrids/v2.0/classification/query?lon=${lon}&lat=${lat}&number_classes=11`;
     const response = await fetch(api_url);
     const json = await response.json();
     console.log(json);

@@ -333,7 +333,7 @@ console.log(NDVI); // Hiển thị kết quả NDVI
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[0] + weatherData.hourly.daily.precipitation_sum[1] + weatherData.hourly.daily.precipitation_sum[2];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed * 3.6);
-                const soil = weatherData.soiltype.properties.most_probable_soil_type;
+                const soil = weatherData.soiltype.wrb_class_name;
                 const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không xác định";
                 const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
@@ -484,7 +484,7 @@ console.log(NDVI); // Hiển thị kết quả NDVI
                 const rainforecast = weatherData.hourly.daily.precipitation_sum[0] + weatherData.hourly.daily.precipitation_sum[1] + weatherData.hourly.daily.precipitation_sum[2];
                 const seismic = weatherData.Impact.toFixed(3);
                 const wind = Math.round(weatherData.json.wind.speed * 3.6);
-                const soil = weatherData.soiltype.properties.most_probable_soil_type;
+                const soil = weatherData.soiltype.wrb_class_name;
                 const city = weatherData.json.name ? weatherData.json.name.toLowerCase() : "không xác định";
                 const elevation = weatherData.elevationData1.elevation[0];
                 const population = await getHumanData(city);
